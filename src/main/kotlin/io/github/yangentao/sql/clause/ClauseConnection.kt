@@ -1,0 +1,36 @@
+package io.github.yangentao.sql.clause
+
+
+import io.github.yangentao.sql.BaseModel
+import io.github.yangentao.sql.InsertResult
+import io.github.yangentao.sql.insert
+import io.github.yangentao.sql.pool.namedConnection
+import io.github.yangentao.sql.query
+import io.github.yangentao.sql.update
+import java.sql.Connection
+import java.sql.ResultSet
+
+fun SQLExpress.insert(connection: Connection): InsertResult {
+    return connection.insert(sql, arguments)
+}
+
+fun SQLExpress.update(connection: Connection): Int {
+    return connection.update(this.sql, this.arguments)
+}
+
+fun SQLExpress.query(connection: Connection): ResultSet {
+    return connection.query(sql, arguments)
+}
+
+inline fun <reified T : BaseModel> SQLExpress.query(): ResultSet {
+    return query(T::class.namedConnection)
+}
+
+inline fun <reified T : BaseModel> SQLExpress.update(): Int {
+    return update(T::class.namedConnection)
+}
+
+inline fun <reified T : BaseModel> SQLExpress.insert(): InsertResult {
+    return insert(T::class.namedConnection)
+}
+
