@@ -2,8 +2,8 @@
 
 package io.github.yangentao.sql.clause
 
-import io.github.yangentao.reflect.KotClass
 import io.github.yangentao.sql.BaseModelClass
+import kotlin.reflect.KClass
 
 class JoinNode(clause: String? = null) : SQLExpress(clause)
 class OnCondition(clause: String? = null) : SQLExpress(clause)
@@ -11,7 +11,7 @@ class OnCondition(clause: String? = null) : SQLExpress(clause)
 private val newJoin: JoinNode get() = JoinNode()
 
 //==
-infix fun KotClass.JOIN(exp: Any): JoinNode {
+infix fun KClass<*>.JOIN(exp: Any): JoinNode {
     return newJoin..this.."JOIN"..exp.asKey
 }
 
@@ -28,7 +28,7 @@ infix fun SQLExpress.JOIN(exp: Any): JoinNode {
 }
 
 //==
-infix fun KotClass.INNER_JOIN(exp: Any): JoinNode {
+infix fun KClass<*>.INNER_JOIN(exp: Any): JoinNode {
     return newJoin..this.."INNER JOIN"..exp.asKey
 }
 
@@ -45,7 +45,7 @@ infix fun SQLExpress.INNER_JOIN(exp: Any): JoinNode {
 }
 
 //==
-infix fun KotClass.LEFT_JOIN(exp: Any): JoinNode {
+infix fun KClass<*>.LEFT_JOIN(exp: Any): JoinNode {
     return newJoin..this.."LEFT JOIN"..exp.asKey
 }
 
@@ -62,7 +62,7 @@ infix fun SQLExpress.LEFT_JOIN(exp: Any): JoinNode {
 }
 
 //==
-infix fun KotClass.RIGHT_JOIN(exp: Any): JoinNode {
+infix fun KClass<*>.RIGHT_JOIN(exp: Any): JoinNode {
     return newJoin..this.."RIGHT JOIN"..exp.asKey
 }
 
@@ -79,7 +79,7 @@ infix fun SQLExpress.RIGHT_JOIN(exp: Any): JoinNode {
 }
 
 //==
-infix fun KotClass.FULL_JOIN(exp: Any): JoinNode {
+infix fun KClass<*>.FULL_JOIN(exp: Any): JoinNode {
     return newJoin..this.."FULL OUTER JOIN"..exp.asKey
 }
 
@@ -96,7 +96,7 @@ infix fun SQLExpress.FULL_JOIN(exp: Any): JoinNode {
 }
 
 //==
-infix fun KotClass.CROSS_JOIN(exp: Any): JoinNode {
+infix fun KClass<*>.CROSS_JOIN(exp: Any): JoinNode {
     return newJoin..this.."CROSS JOIN"..exp.asKey
 }
 

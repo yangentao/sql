@@ -2,8 +2,8 @@
 
 package io.github.yangentao.sql.clause
 
-import io.github.yangentao.reflect.KotClass
 import io.github.yangentao.sql.BaseModelClass
+import kotlin.reflect.KClass
 
 class SQLNode(clause: String? = null) : SQLExpress(clause)
 
@@ -47,7 +47,7 @@ infix fun BaseModelClass<*>.AS(right: Any): SQLNode {
     return this.tableClass.AS(right.asKey)
 }
 
-infix fun KotClass.AS(right: Any): SQLNode {
+infix fun KClass<*>.AS(right: Any): SQLNode {
     return newNode..this.."AS"..right.asKey
 }
 
@@ -83,16 +83,16 @@ private fun _SELECT(vararg exps: Any): SQLNode {
 private fun _SELECT_LIST(exps: List<Any>): SQLNode {
     if (exps.isEmpty()) return newNode.."SELECT *"
     val first = exps.first()
-    when (first) {
-        is DistinctExp -> return newNode.."SELECT"..first..exps.slice(1..<exps.size)
+    return when (first) {
+        is DistinctExp -> newNode.."SELECT"..first..exps.slice(1..<exps.size)
         is DistinctOnExp ->
-            return if (exps.size == 1) {
+            if (exps.size == 1) {
                 newNode.."SELECT"..first.." *"
             } else {
                 newNode.."SELECT"..first..exps.slice(1..<exps.size)
             }
 
-        else -> return newNode.."SELECT"..exps
+        else -> newNode.."SELECT"..exps
     }
 }
 
