@@ -2,8 +2,8 @@
 
 package io.github.yangentao.sql
 
-import io.github.yangentao.reflect.decodeValue
 import io.github.yangentao.anno.userName
+import io.github.yangentao.types.decodeValue
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
 import kotlin.reflect.KClass
@@ -117,7 +117,7 @@ fun <T> ResultSet.list(block: ResultRow.() -> T?): List<T> {
     val ls = ArrayList<T>(128)
     this.use {
         while (it.next()) {
-            ResultRow(it).block()?.also { ls.add(it) }
+            ResultRow(it).block()?.also { r -> ls.add(r) }
         }
     }
     return ls

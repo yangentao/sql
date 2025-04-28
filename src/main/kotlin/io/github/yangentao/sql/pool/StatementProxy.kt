@@ -2,9 +2,9 @@
 
 package io.github.yangentao.sql.pool
 
-import io.github.yangentao.reflect.ProxyInvoker
-import io.github.yangentao.reflect.invokeInstance
-import io.github.yangentao.reflect.proxyInterface
+import io.github.yangentao.types.ProxyInvoker
+import io.github.yangentao.types.invokeInstance
+import io.github.yangentao.types.proxyInterface
 import java.lang.reflect.Method
 import java.sql.PreparedStatement
 import java.sql.ResultSet

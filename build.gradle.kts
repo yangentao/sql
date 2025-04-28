@@ -32,9 +32,10 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib"))
-    implementation("io.github.yangentao:anno:[1.0.1,)")
-    implementation("io.github.yangentao:kson:[1.0.2,)")
-    api("org.xerial:sqlite-jdbc:3.45.3.0")
+    implementation("io.github.yangentao:types:[1.0.0,)")
+//    implementation("io.github.yangentao:anno:[1.0.2,)")
+//    implementation("io.github.yangentao:kson:[1.0.2,)")
+    compileOnly("org.xerial:sqlite-jdbc:[3.45.3.0,)")
 }
 
 tasks.test {

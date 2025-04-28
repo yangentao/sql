@@ -1,6 +1,5 @@
 package io.github.yangentao.sql
 
-import io.github.yangentao.reflect.plusAssign
 import java.sql.Connection
 
 /**

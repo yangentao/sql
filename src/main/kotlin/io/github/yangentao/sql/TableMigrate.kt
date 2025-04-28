@@ -1,6 +1,7 @@
 package io.github.yangentao.sql
 
 
+import io.github.yangentao.anno.AutoCreateTable
 import io.github.yangentao.sql.pool.namedConnection
 import java.sql.Connection
 import kotlin.reflect.KClass

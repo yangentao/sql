@@ -1,6 +1,5 @@
 package io.github.yangentao.sql
 
-import io.github.yangentao.reflect.plusAssign
 import io.github.yangentao.sql.clause.INSERT_INTO_VALUES
 import io.github.yangentao.sql.clause.insert
 import java.sql.Connection

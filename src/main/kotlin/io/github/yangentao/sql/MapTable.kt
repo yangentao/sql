@@ -2,10 +2,10 @@
 
 package io.github.yangentao.sql
 
-import io.github.yangentao.reflect.decodeValue
-import io.github.yangentao.reflect.encodeToString
 import io.github.yangentao.anno.userName
 import io.github.yangentao.sql.pool.HarePool
+import io.github.yangentao.types.decodeValue
+import io.github.yangentao.types.encodeToString
 import java.sql.Connection
 import kotlin.collections.set
 import kotlin.reflect.KProperty

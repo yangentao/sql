@@ -2,11 +2,11 @@
 
 package io.github.yangentao.sql.clause
 
-import io.github.yangentao.reflect.quoted
 import io.github.yangentao.sql.ArgList
 import io.github.yangentao.sql.escapeSQL
 import io.github.yangentao.sql.fieldSQL
 import io.github.yangentao.sql.modelFieldSQL
+import io.github.yangentao.sql.quoted
 
 //https://sqlite.org/optoverview.html#the_between_optimization
 private val likeAllowChars: Set<Char> = setOf('%', '[', ']', '-', '_', '^')

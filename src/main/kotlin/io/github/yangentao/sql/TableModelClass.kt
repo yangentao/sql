@@ -4,14 +4,6 @@ package io.github.yangentao.sql
 
 
 import io.github.yangentao.kson.JsonResult
-import io.github.yangentao.reflect.BadValue
-import io.github.yangentao.reflect.Prop
-import io.github.yangentao.reflect.PropInt
-import io.github.yangentao.reflect.PropLong
-import io.github.yangentao.reflect.WithConnection
-import io.github.yangentao.reflect.decodeValue
-import io.github.yangentao.reflect.ieq
-import io.github.yangentao.reflect.returnClass
 import io.github.yangentao.sql.clause.ALL
 import io.github.yangentao.sql.clause.AND_ALL
 import io.github.yangentao.sql.clause.ASC
@@ -50,6 +42,11 @@ import io.github.yangentao.sql.clause.insert
 import io.github.yangentao.sql.clause.query
 import io.github.yangentao.sql.clause.update
 import io.github.yangentao.sql.pool.namedConnection
+import io.github.yangentao.types.Prop
+import io.github.yangentao.types.PropInt
+import io.github.yangentao.types.PropLong
+import io.github.yangentao.types.decodeValue
+import io.github.yangentao.types.returnClass
 import java.sql.Connection
 import java.sql.ResultSet
 import kotlin.collections.filterNotNull

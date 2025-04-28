@@ -1,12 +1,9 @@
+@file:Suppress("unused")
+
 package io.github.yangentao.sql.clause
 
-
-import io.github.yangentao.sql.BaseModel
-import io.github.yangentao.sql.InsertResult
-import io.github.yangentao.sql.insert
+import io.github.yangentao.sql.*
 import io.github.yangentao.sql.pool.namedConnection
-import io.github.yangentao.sql.query
-import io.github.yangentao.sql.update
 import java.sql.Connection
 import java.sql.ResultSet
 

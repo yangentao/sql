@@ -3,9 +3,7 @@
 package io.github.yangentao.sql
 
 import io.github.yangentao.kson.*
-import io.github.yangentao.reflect.Prop
-import io.github.yangentao.reflect.plusAssign
-import io.github.yangentao.reflect.rootError
+import io.github.yangentao.types.Prop
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet

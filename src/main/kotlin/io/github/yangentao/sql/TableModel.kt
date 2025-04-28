@@ -5,10 +5,6 @@ package io.github.yangentao.sql
 
 import io.github.yangentao.anno.Exclude
 import io.github.yangentao.kson.Kson
-import io.github.yangentao.reflect.Prop
-import io.github.yangentao.reflect.WithConnection
-import io.github.yangentao.reflect.getPropValue
-import io.github.yangentao.reflect.setPropValue
 import io.github.yangentao.sql.clause.AND_ALL
 import io.github.yangentao.sql.clause.DELETE_FROM
 import io.github.yangentao.sql.clause.EQ
@@ -25,6 +21,9 @@ import io.github.yangentao.sql.clause.insert
 import io.github.yangentao.sql.clause.query
 import io.github.yangentao.sql.clause.update
 import io.github.yangentao.sql.pool.namedConnection
+import io.github.yangentao.types.Prop
+import io.github.yangentao.types.getPropValue
+import io.github.yangentao.types.setPropValue
 import java.sql.Connection
 import java.sql.ResultSet
 import kotlin.reflect.KMutableProperty

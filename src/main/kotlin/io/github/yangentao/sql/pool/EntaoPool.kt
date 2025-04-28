@@ -2,7 +2,6 @@
 
 package io.github.yangentao.sql.pool
 
-import io.github.yangentao.reflect.IntervalRun
 import io.github.yangentao.sql.SQLog
 import java.sql.Connection
 import java.util.concurrent.ConcurrentHashMap
@@ -154,4 +153,16 @@ object EntaoPool : NamedConnections {
         creatorMap.clear()
     }
 
+}
+
+//mill seconds
+private class IntervalRun(private val interval: Long, initTime: Long = System.currentTimeMillis()) {
+    private var lastTime: Long = initTime
+    fun run(block: () -> Unit): Boolean {
+        val tm = System.currentTimeMillis()
+        if (tm - lastTime < interval) return false
+        lastTime = tm
+        block()
+        return true
+    }
 }

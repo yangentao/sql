@@ -1,18 +1,8 @@
 package io.github.yangentao.sql
 
-import io.github.yangentao.reflect.getPropValue
-import io.github.yangentao.sql.clause.ASC
-import io.github.yangentao.sql.clause.EQ
-import io.github.yangentao.sql.clause.EQUAL
-import io.github.yangentao.sql.clause.FROM
-import io.github.yangentao.sql.clause.INNER_JOIN
-import io.github.yangentao.sql.clause.LIMIT
-import io.github.yangentao.sql.clause.ON
-import io.github.yangentao.sql.clause.ORDER_BY
-import io.github.yangentao.sql.clause.SELECT
-import io.github.yangentao.sql.clause.WHERE
-import io.github.yangentao.sql.clause.query
+import io.github.yangentao.sql.clause.*
 import io.github.yangentao.sql.pool.namedConnection
+import io.github.yangentao.types.getPropValue
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
@@ -21,63 +11,6 @@ import kotlin.reflect.full.findAnnotation
 /**
  * Created by yangentao on 2016/12/14.
  */
-@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE_PARAMETER)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class ModelTable(
-    val version: Int = 0
-)
-
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class ModelView(
-    val version: Int = 0
-)
-
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class ModelField(
-    val primaryKey: Boolean = false,
-    //0:false;  >0 : auto inc and set as  start value
-    val autoInc: Int = 0,
-    val unique: Boolean = false,
-    val uniqueName: String = "",
-    val index: Boolean = false,
-    val notNull: Boolean = false,
-    val defaultValue: String = "",
-)
-
-//DecimalFormat
-//@Decimal(11, 2, "0.00")
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class Decimal(val precision: Int = 11, val scale: Int = 2, val pattern: String = "")
-
-//------------------------------------------------
-
-@Target(AnnotationTarget.FUNCTION)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class SQLFunction(val value: String)
-
-@Target(AnnotationTarget.FUNCTION)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class SQLProcedure(val value: String)
-
-@Target(AnnotationTarget.VALUE_PARAMETER)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class ParamIn
-
-@Target(AnnotationTarget.VALUE_PARAMETER)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class ParamOut
-
-@Target(AnnotationTarget.VALUE_PARAMETER)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class ParamInOut
-
-//自动创建表
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class AutoCreateTable(val value: Boolean = true)
 
 //外键
 //@RefModel(Person::class,  "name")
@@ -92,7 +25,6 @@ annotation class RelatedList(val relationTable: KClass<out BaseModel>, val limit
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class RelatedOne(val keyProperty: String)
-
 object RelationOneTarget {
     inline operator fun <reified T : BaseModel, reified R : BaseModel> getValue(thisRef: T, property: KProperty<*>): R? {
         return getValueX(T::class, R::class, thisRef, property)
@@ -145,7 +77,7 @@ object RelationListTarget {
             .WHERE(relThisPK.modelFieldSQL EQ thisPKValue)
             .ORDER_BY(targetPK.ASC)
             .LIMIT(relatedBy.limit)
-        return node.query(thisClass.namedConnection).list {orm(targetClass) }
+        return node.query(thisClass.namedConnection).list { orm(targetClass) }
     }
 
 }

@@ -5,7 +5,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.util.*
 
-object DataSources {
+object LiteSources {
     fun sqliteTemp(): SQLiteDataSource {
         return sqlite("")
     }

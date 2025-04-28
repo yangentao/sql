@@ -6,11 +6,9 @@ import io.github.yangentao.anno.Exclude
 import io.github.yangentao.anno.userName
 import io.github.yangentao.kson.KsonArray
 import io.github.yangentao.kson.KsonObject
-import io.github.yangentao.reflect.decodeValue
-import io.github.yangentao.reflect.filterTyped
-import io.github.yangentao.reflect.ieq
-import io.github.yangentao.reflect.isPublic
-import io.github.yangentao.reflect.setPropValue
+import io.github.yangentao.types.decodeValue
+import io.github.yangentao.types.isPublic
+import io.github.yangentao.types.setPropValue
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
 import kotlin.reflect.KClass

@@ -5,15 +5,14 @@ import io.github.yangentao.anno.SerialMe
 import io.github.yangentao.anno.isHidden
 import io.github.yangentao.anno.userName
 import io.github.yangentao.kson.JsonResult
+import io.github.yangentao.kson.JsonSuccess
 import io.github.yangentao.kson.KsonArray
 import io.github.yangentao.kson.KsonObject
 import io.github.yangentao.kson.ksonArray
-import io.github.yangentao.reflect.ClassProperty
-import io.github.yangentao.reflect.Prop
-import io.github.yangentao.reflect.declaredMemberPropertiesSorted
-import io.github.yangentao.reflect.display
-import io.github.yangentao.reflect.encodeToString
-import io.github.yangentao.reflect.getPropValue
+import io.github.yangentao.types.Prop
+import io.github.yangentao.types.declaredMemberPropertiesSorted
+import io.github.yangentao.types.encodeToString
+import io.github.yangentao.types.getPropValue
 import java.math.BigDecimal
 import kotlin.collections.isNotEmpty
 import kotlin.collections.map
@@ -76,4 +75,16 @@ inline fun <reified T : BaseModel> Collection<T>.jsonArrayClient(includes: List<
 fun <T : BaseModel> JsonResult.dataListModel(list: List<T>, includes: List<Prop> = emptyList()): JsonResult {
     dataList(list) { it.toJson(includes = includes) }
     return this
+}
+
+
+
+fun BaseModel.jsonResult(includes: List<Prop> = emptyList(), excludes: List<Prop> = emptyList(), attrs: List<Pair<String, Any?>> = emptyList()): JsonResult {
+    return JsonResult(ok = true, data = this.toJson(includes = includes, excludes = excludes, attrs = attrs))
+}
+
+fun <T : BaseModel> List<T>.jsonResult(total: Int = 0, offset: Int? = null, includes: List<Prop> = emptyList(), excludes: List<Prop> = emptyList(), attrs: List<Pair<String, Any?>> = emptyList()): JsonResult {
+    return JsonSuccess(attrs = listOf("total" to total.greatEqual(this.size), "offset" to (offset ?: 0))).dataList(this) {
+        it.toJson(includes = includes, excludes = excludes, attrs = attrs)
+    }
 }

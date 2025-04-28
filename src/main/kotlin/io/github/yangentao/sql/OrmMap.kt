@@ -1,8 +1,8 @@
 package io.github.yangentao.sql
 
-import io.github.yangentao.reflect.decodeValue
 import io.github.yangentao.anno.userName
-import io.github.yangentao.reflect.Prop
+import io.github.yangentao.types.Prop
+import io.github.yangentao.types.decodeValue
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
 

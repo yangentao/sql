@@ -1,7 +1,7 @@
 package io.github.yangentao.sql
 
-import io.github.yangentao.reflect.ClassProperty
-import io.github.yangentao.reflect.declaredMemberPropertiesSorted
+import io.github.yangentao.anno.ModelField
+import io.github.yangentao.types.declaredMemberPropertiesSorted
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.findAnnotation

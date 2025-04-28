@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package io.github.yangentao.sql
 
 import io.github.yangentao.sql.clause.AND_ALL
