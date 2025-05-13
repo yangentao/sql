@@ -1,24 +1,16 @@
 package io.github.yangentao.sql
 
+import io.github.yangentao.xlog.TagLog
 
-typealias SQLLogHandler = (String) -> Unit
+internal val logSQL = TagLog("SQL")
 
 object SQLog {
-    var ERROR_LOGGER: SQLLogHandler = { println(it) }
-    var DEBUG_LOGGER: SQLLogHandler? = null
     fun err(vararg vs: Any?) {
-        val s = vs.joinToString(" ") {
-            it?.toString() ?: "null"
-        }
-        ERROR_LOGGER(s)
+        logSQL.e(*vs)
     }
 
     fun debug(vararg vs: Any?) {
-        val c = DEBUG_LOGGER ?: return
-        val s = vs.joinToString(" ") {
-            it?.toString() ?: "null"
-        }
-        c(s)
+        logSQL.d(*vs)
     }
 
 }
