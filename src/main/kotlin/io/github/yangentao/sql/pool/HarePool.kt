@@ -105,6 +105,14 @@ interface NamedConnections {
         return pick(NO_NAME_CONNECTION)
     }
 
+    fun pushSource(ds: DataSource) {
+        push(DataSourceConnectionBuilder(ds))
+    }
+
+    fun pushSource(name: String, ds: DataSource) {
+        push(name, DataSourceConnectionBuilder(ds))
+    }
+
     fun destroy() {}
 }
 
