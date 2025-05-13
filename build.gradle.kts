@@ -32,7 +32,7 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib"))
-    api("io.github.yangentao:types:[1.0.0,)")
+    api("io.github.yangentao:types:[1.0.3,)")
 //    implementation("io.github.yangentao:anno:[1.0.2,)")
     implementation("io.github.yangentao:xlog:[1.0.5,)")
     compileOnly("org.xerial:sqlite-jdbc:[3.45.3.0,)")
