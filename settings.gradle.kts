@@ -3,5 +3,5 @@ plugins {
 }
 rootProject.name = "sql"
 
-include(":types")
-project(":types").projectDir = File("../types")
+//include(":types")
+//project(":types").projectDir = File("../types")

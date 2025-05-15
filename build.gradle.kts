@@ -16,7 +16,7 @@ plugins {
 
 group = "io.github.yangentao"
 
-version = "1.0.2"
+version = "1.1.0"
 val artifactName = "sql"
 val githubLib = "sql"
 val descLib = "SQL, ORM, Kotlin."
@@ -32,14 +32,16 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib"))
-//    api("io.github.yangentao:types:[1.0.3,)")
+
     implementation("io.github.yangentao:anno:[1.1.0,)")
-    implementation("io.github.yangentao:kson:[1.1.0,)")
     implementation("io.github.yangentao:xlog:[1.0.5,)")
+    implementation("io.github.yangentao:kson:[1.1.0,)")
+    implementation("io.github.yangentao:types:[1.1.0,)")
+
     compileOnly("org.xerial:sqlite-jdbc:[3.45.3.0,)")
     testImplementation("org.xerial:sqlite-jdbc:[3.45.3.0,)")
 
-    implementation(project(":types"))
+//    implementation(project(":types"))
 }
 
 tasks.test {
