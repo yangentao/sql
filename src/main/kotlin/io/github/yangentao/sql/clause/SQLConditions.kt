@@ -6,7 +6,7 @@ import io.github.yangentao.sql.ArgList
 import io.github.yangentao.sql.escapeSQL
 import io.github.yangentao.sql.fieldSQL
 import io.github.yangentao.sql.modelFieldSQL
-import io.github.yangentao.sql.quoted
+import io.github.yangentao.types.quoted
 
 //https://sqlite.org/optoverview.html#the_between_optimization
 private val likeAllowChars: Set<Char> = setOf('%', '[', ']', '-', '_', '^')

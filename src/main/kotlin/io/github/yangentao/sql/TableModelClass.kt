@@ -46,6 +46,7 @@ import io.github.yangentao.types.Prop
 import io.github.yangentao.types.PropInt
 import io.github.yangentao.types.PropLong
 import io.github.yangentao.types.decodeValue
+import io.github.yangentao.types.ieq
 import io.github.yangentao.types.returnClass
 import java.sql.Connection
 import java.sql.ResultSet

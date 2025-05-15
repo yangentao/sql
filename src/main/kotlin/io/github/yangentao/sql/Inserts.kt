@@ -2,6 +2,7 @@ package io.github.yangentao.sql
 
 import io.github.yangentao.sql.clause.INSERT_INTO_VALUES
 import io.github.yangentao.sql.clause.insert
+import io.github.yangentao.types.plusAssign
 import java.sql.Connection
 
 enum class Conflicts {

@@ -8,6 +8,7 @@ import io.github.yangentao.anno.Length
 import io.github.yangentao.anno.ModelField
 import io.github.yangentao.kson.KsonArray
 import io.github.yangentao.kson.KsonObject
+import io.github.yangentao.types.quotedSingle
 import java.sql.Connection
 import java.sql.Date
 import java.sql.Time

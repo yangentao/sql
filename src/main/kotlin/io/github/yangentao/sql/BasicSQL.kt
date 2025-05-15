@@ -5,6 +5,7 @@ package io.github.yangentao.sql
 import io.github.yangentao.anno.ModelTable
 import io.github.yangentao.anno.ModelView
 import io.github.yangentao.anno.Name
+import io.github.yangentao.types.or
 import io.github.yangentao.types.ownerClass
 import java.sql.Connection
 import kotlin.reflect.KClass

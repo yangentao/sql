@@ -7,6 +7,8 @@ import io.github.yangentao.anno.userName
 import io.github.yangentao.kson.KsonArray
 import io.github.yangentao.kson.KsonObject
 import io.github.yangentao.types.decodeValue
+import io.github.yangentao.types.filterTyped
+import io.github.yangentao.types.ieq
 import io.github.yangentao.types.isPublic
 import io.github.yangentao.types.setPropValue
 import java.sql.ResultSet

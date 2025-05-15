@@ -4,6 +4,8 @@ package io.github.yangentao.sql
 
 import io.github.yangentao.kson.*
 import io.github.yangentao.types.Prop
+import io.github.yangentao.types.plusAssign
+import io.github.yangentao.types.rootError
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
