@@ -37,6 +37,7 @@ dependencies {
     implementation("io.github.yangentao:kson:[1.1.0,)")
     implementation("io.github.yangentao:xlog:[1.0.5,)")
     compileOnly("org.xerial:sqlite-jdbc:[3.45.3.0,)")
+    testImplementation("org.xerial:sqlite-jdbc:[3.45.3.0,)")
 
     implementation(project(":types"))
 }
