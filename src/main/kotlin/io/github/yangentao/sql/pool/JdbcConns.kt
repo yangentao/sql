@@ -28,6 +28,7 @@ object JdbcConns {
         Class.forName("org.sqlite.JDBC")
         val sqlite = SQLiteDataSource()
         sqlite.url = "jdbc:sqlite:$file"
+        sqlite.setEncoding("UTF-8")
         return sqlite
     }
 
