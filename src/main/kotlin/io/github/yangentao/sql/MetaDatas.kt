@@ -76,10 +76,14 @@ class COLUMN_INFO {
 // INDEX_NAME=PRIMARY, TYPE=3, ORDINAL_POSITION=1, COLUMN_NAME=id, ASC_OR_DESC=A, CARDINALITY=6,
 // PAGES=0, FILTER_CONDITION=null,
 class INDEX_INFO {
-    var TABLE_CAT: String = ""
+    var TABLE_CAT: String? = ""
     var TABLE_NAME: String = ""
     var INDEX_NAME: String = ""
     var COLUMN_NAME: String = ""
     var TYPE: Int = 0
+
+    override fun toString(): String {
+        return "INDEX_INFO(cat: $TABLE_CAT, tableName: $TABLE_NAME, indexName:$INDEX_NAME, column:$COLUMN_NAME, type: $TYPE)"
+    }
 
 }

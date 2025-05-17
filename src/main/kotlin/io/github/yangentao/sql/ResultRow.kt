@@ -6,22 +6,14 @@ import io.github.yangentao.anno.Exclude
 import io.github.yangentao.anno.userName
 import io.github.yangentao.kson.KsonArray
 import io.github.yangentao.kson.KsonObject
-import io.github.yangentao.types.decodeValue
-import io.github.yangentao.types.filterTyped
-import io.github.yangentao.types.ieq
-import io.github.yangentao.types.isPublic
-import io.github.yangentao.types.setPropValue
+import io.github.yangentao.types.*
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty
-import kotlin.reflect.full.createInstance
-import kotlin.reflect.full.hasAnnotation
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.primaryConstructor
-import kotlin.reflect.full.valueParameters
+import kotlin.reflect.full.*
 
 @JvmInline
 value class ResultRow(val resultSet: ResultSet) {
@@ -90,6 +82,7 @@ value class ResultRow(val resultSet: ResultSet) {
     }
 
     fun <T : Any> model(cls: KClass<T>, properties: List<KMutableProperty<*>>? = null): T {
+
         val meta: ResultSetMetaData = this.resultSet.metaData
         val m: T = cls.createInstance()
         val propList: List<KMutableProperty<*>> = if (properties.isNullOrEmpty()) {
@@ -100,7 +93,8 @@ value class ResultRow(val resultSet: ResultSet) {
         for (i in meta.indices) {
             val label = meta.labelAt(i)
             val prop = propList.firstOrNull { it.userName ieq label } ?: continue
-            val pvalue: Any? = prop.decodeValue(resultSet.getObject(i))
+            val v = resultSet.getObject(i)
+            val pvalue: Any? = prop.decodeValue(v)
             if (!prop.returnType.isMarkedNullable && pvalue == null) {
                 continue
             }
