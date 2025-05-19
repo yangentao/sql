@@ -3,10 +3,10 @@
 package io.github.yangentao.sql
 
 import io.github.yangentao.kson.*
-import io.github.yangentao.types.DateTime
 import io.github.yangentao.types.Prop
 import io.github.yangentao.types.plusAssign
 import io.github.yangentao.types.rootError
+import io.github.yangentao.types.timeInMillis
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -181,14 +181,14 @@ private fun postJsonSQL(sql: String, args: ArgList): String {
 fun Connection.prepare(sql: String, args: ArgList, genKeys: Boolean = false): PreparedStatement {
     val newSQL = if (isPostgres) postJsonSQL(sql, args) else sql
     sqlLog.d("SQL: ", newSQL)
-    if (args.isNotEmpty()) SQLog.debug("     ", args)
+    if (args.isNotEmpty()) sqlLog.d("     ", args)
     val newArgs: ArgList = if (isSQLite) {
         args.map { v ->
             when (v) {
                 is java.util.Date -> v.time  // sqlDate, Time, Timestamp
-                is LocalTime -> DateTime.from(v).timeInMillis
-                is LocalDate -> DateTime.from(v).timeInMillis
-                is LocalDateTime -> DateTime.from(v).timeInMillis
+                is LocalTime -> v.timeInMillis
+                is LocalDate -> v.timeInMillis //  DateTime.from(v).timeInMillis
+                is LocalDateTime -> v.timeInMillis //  DateTime.from(v).timeInMillis
                 else -> v
             }
         }
