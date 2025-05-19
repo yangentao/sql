@@ -1,11 +1,6 @@
 package io.github.yangentao.sql
 
-
-import io.github.yangentao.anno.Comment
-import io.github.yangentao.anno.Decimal
-import io.github.yangentao.anno.Label
-import io.github.yangentao.anno.Length
-import io.github.yangentao.anno.ModelField
+import io.github.yangentao.anno.*
 import io.github.yangentao.kson.KsonArray
 import io.github.yangentao.kson.KsonObject
 import io.github.yangentao.types.quotedSingle
@@ -211,6 +206,7 @@ class MySQLTableCreator(connection: Connection, cls: KClass<*>) : CommonTableCre
     override fun typeName(col: ColumnInfo): String {
         when (col.fieldClass) {
             KsonObject::class, KsonArray::class -> return "JSON"
+            Timestamp::class, LocalDateTime::class -> return "DATETIME"
         }
         return super.typeName(col)
     }
@@ -286,6 +282,9 @@ class SQLiteTableCreator(connection: Connection, cls: KClass<*>) : CommonTableCr
         when (col.fieldClass) {
             Long::class, Int::class, Short::class, Byte::class -> return "INTEGER"
             ByteArray::class -> return "BLOB"
+            Time::class, LocalTime::class -> return "INTEGER"
+            Date::class, java.util.Date::class, LocalDate::class -> return "INTEGER"
+            Timestamp::class, LocalDateTime::class -> return "INTEGER"
             KsonObject::class, KsonArray::class -> return "TEXT"
         }
         return super.typeName(col)

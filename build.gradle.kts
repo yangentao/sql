@@ -16,7 +16,7 @@ plugins {
 
 group = "io.github.yangentao"
 
-version = "1.1.5"
+version = "1.1.8"
 val artifactName = "sql"
 val githubLib = "sql"
 val descLib = "SQL, ORM, Kotlin."
@@ -35,7 +35,7 @@ dependencies {
 
     implementation("io.github.yangentao:anno:[1.1.0,)")
     implementation("io.github.yangentao:xlog:[1.1.3,)")
-    implementation("io.github.yangentao:kson:[1.1.7,)")
+    implementation("io.github.yangentao:kson:[1.1.8,)")
     implementation("io.github.yangentao:types:[1.1.3,)")
 
     compileOnly("org.xerial:sqlite-jdbc:[3.45.3.0,)")

@@ -3,6 +3,7 @@
 package io.github.yangentao.sql
 
 import io.github.yangentao.kson.*
+import io.github.yangentao.types.DateTime
 import io.github.yangentao.types.Prop
 import io.github.yangentao.types.plusAssign
 import io.github.yangentao.types.rootError
@@ -10,6 +11,9 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Statement
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 /**
  * Created by entaoyang@163.com on 2017/6/10.
@@ -176,12 +180,24 @@ private fun postJsonSQL(sql: String, args: ArgList): String {
 @Suppress("SqlSourceToSinkFlow")
 fun Connection.prepare(sql: String, args: ArgList, genKeys: Boolean = false): PreparedStatement {
     val newSQL = if (isPostgres) postJsonSQL(sql, args) else sql
-    SQLog.debug("SQL: ", newSQL)
+    sqlLog.d("SQL: ", newSQL)
     if (args.isNotEmpty()) SQLog.debug("     ", args)
-    if (genKeys) {
-        return this.prepareStatement(newSQL, Statement.RETURN_GENERATED_KEYS).setParams(args)
+    val newArgs: ArgList = if (isSQLite) {
+        args.map { v ->
+            when (v) {
+                is java.util.Date -> v.time  // sqlDate, Time, Timestamp
+                is LocalTime -> DateTime.from(v).timeInMillis
+                is LocalDate -> DateTime.from(v).timeInMillis
+                is LocalDateTime -> DateTime.from(v).timeInMillis
+                else -> v
+            }
+        }
+    } else args
+    return if (genKeys) {
+        this.prepareStatement(newSQL, Statement.RETURN_GENERATED_KEYS).setParams(newArgs)
+    } else {
+        this.prepareStatement(newSQL).setParams(newArgs)
     }
-    return this.prepareStatement(newSQL).setParams(args)
 }
 
 //index from 1

@@ -3,6 +3,7 @@ package io.github.yangentao.sql
 import io.github.yangentao.anno.userName
 import io.github.yangentao.types.Prop
 import io.github.yangentao.types.decodeValue
+import io.github.yangentao.xlog.logd
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
 
@@ -53,9 +54,9 @@ class OrmMap(capacity: Int = 32) : HashMap<String, Any?>(capacity) {
     //sqlite 返回的结果集中, columnLabel 是 user.id, user.name
     //mysql 返回的结果集 columnLabel 是 id, name
     inline operator fun <reified V> getValue(thisRef: Any?, property: KProperty<*>): V {
-        //FixME  escapeSQL OR unescapeSQL ???
         val v = this[property.fieldSQL] ?: this[property.userName] ?: this[property.modelFieldSQL]
-        return property.decodeValue(v) as V
+        val dv = property.decodeValue(v) as V
+        return dv
     }
 
 }
