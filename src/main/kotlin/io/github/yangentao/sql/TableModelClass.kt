@@ -42,6 +42,7 @@ import io.github.yangentao.sql.clause.insert
 import io.github.yangentao.sql.clause.query
 import io.github.yangentao.sql.clause.update
 import io.github.yangentao.sql.pool.namedConnection
+import io.github.yangentao.sql.utils.BadValue
 import io.github.yangentao.types.Prop
 import io.github.yangentao.types.PropInt
 import io.github.yangentao.types.PropLong

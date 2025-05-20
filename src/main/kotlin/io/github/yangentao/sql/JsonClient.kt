@@ -5,6 +5,7 @@ import io.github.yangentao.anno.SerialMe
 import io.github.yangentao.anno.isHidden
 import io.github.yangentao.anno.userName
 import io.github.yangentao.kson.*
+import io.github.yangentao.sql.utils.ClassProperty
 import io.github.yangentao.types.*
 import java.math.BigDecimal
 import kotlin.reflect.KClass
