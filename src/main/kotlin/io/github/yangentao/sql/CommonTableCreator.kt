@@ -102,7 +102,7 @@ open class CommonTableCreator(val connection: Connection, val cls: KClass<*>) {
         val ls = ArrayList<String>()
         ls += col.prop.fieldSQL.escapeSQL
         ls += typeName(col)
-        if (col.notNull) {
+        if (col.notNull && primaryKeyCount != 1) {
             ls += "NOT NULL"
         }
         if (col.unique && col.uniqueName.isEmpty()) {
