@@ -2,30 +2,16 @@
 
 package io.github.yangentao.sql
 
-
 import io.github.yangentao.anno.Exclude
 import io.github.yangentao.kson.Kson
-import io.github.yangentao.sql.clause.AND_ALL
-import io.github.yangentao.sql.clause.DELETE_FROM
-import io.github.yangentao.sql.clause.EQ
-import io.github.yangentao.sql.clause.FROM
-import io.github.yangentao.sql.clause.INSERT_INTO
-import io.github.yangentao.sql.clause.LIMIT
-import io.github.yangentao.sql.clause.SELECT
-import io.github.yangentao.sql.clause.SET
-import io.github.yangentao.sql.clause.SQLExpress
-import io.github.yangentao.sql.clause.UPDATE
-import io.github.yangentao.sql.clause.WHERE
-import io.github.yangentao.sql.clause.Where
-import io.github.yangentao.sql.clause.insert
-import io.github.yangentao.sql.clause.query
-import io.github.yangentao.sql.clause.update
+import io.github.yangentao.sql.clause.*
 import io.github.yangentao.sql.pool.namedConnection
+import io.github.yangentao.sql.utils.XConfig.Companion.updateByKey
 import io.github.yangentao.types.Prop
 import io.github.yangentao.types.getPropValue
 import io.github.yangentao.types.setPropValue
+import io.github.yangentao.xlog.XLog.i
 import java.sql.Connection
-import java.sql.ResultSet
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
 
@@ -39,18 +25,6 @@ abstract class BaseModel : WithConnection {
 
     @Exclude
     override val connection: Connection get() = this::class.namedConnection
-
-    fun SQLExpress.query(): ResultSet {
-        return query(connection)
-    }
-
-    fun SQLExpress.insert(): InsertResult {
-        return insert(connection)
-    }
-
-    fun SQLExpress.update(): Int {
-        return update(connection)
-    }
 
     operator fun get(key: String): Any? {
         return model[key]
@@ -117,12 +91,19 @@ abstract class TableModel : BaseModel() {
         val colList = propertiesExists.map { it to model[it] }
         val aiList = this::class.propertiesModel.filter { it.annotation.autoInc > 0 }
         val ret = INSERT_INTO(this::class, colList).insert()
-        if (ret.count > 0L) {
-            for (p in aiList) {
-                val v = ret.keyOf(p.property)
-                if (v != null) p.property.setPropValue(this, v)
+        if (aiList.isNotEmpty() && ret.count > 0L) {
+            if(connection.isSQLite){
+                if(aiList.size == 1){
+                    aiList.first().property.setPropValue(this, ret.key)
+                }else{
+                    error("SQLite Only support ONE auto increase field.")
+                }
+            }else {
+                for (p in aiList) {
+                    val v = ret.keyOf(p.property)
+                    if (v != null) p.property.setPropValue(this, v)
+                }
             }
-
         }
         return ret
     }

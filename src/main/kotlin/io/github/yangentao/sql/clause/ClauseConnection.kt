@@ -31,3 +31,17 @@ inline fun <reified T : BaseModel> SQLExpress.insert(): InsertResult {
     return insert(T::class.namedConnection)
 }
 
+context(wc: WithConnection)
+fun SQLExpress.query(): ResultSet {
+    return query(wc.connection)
+}
+
+context(wc: WithConnection)
+fun SQLExpress.insert(): InsertResult {
+    return insert(wc.connection)
+}
+
+context(wc: WithConnection)
+fun SQLExpress.update(): Int {
+    return update(wc.connection)
+}

@@ -7,7 +7,8 @@ buildscript {
     }
 }
 plugins {
-    kotlin("jvm") version "2.1.20"
+//    kotlin("jvm") version "2.1.20"
+    kotlin("jvm") version "2.2.0-RC"
     signing
     id("maven-publish")
     id("org.jetbrains.dokka") version "2.0.0"
@@ -16,7 +17,7 @@ plugins {
 
 group = "io.github.yangentao"
 
-version = "1.1.10"
+version = "1.1.12"
 val artifactName = "sql"
 val githubLib = "sql"
 val descLib = "SQL, ORM, Kotlin."
@@ -34,16 +35,13 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     testImplementation("org.xerial:sqlite-jdbc:[3.45.3.0,)")
+    compileOnly("org.xerial:sqlite-jdbc:[3.45.3.0,)")
 
 
     implementation("io.github.yangentao:anno:[1.1.0,)")
     implementation("io.github.yangentao:xlog:[1.1.3,)")
     implementation("io.github.yangentao:kson:[1.1.8,)")
-    implementation("io.github.yangentao:types:[1.1.8,)")
-
-    compileOnly("org.xerial:sqlite-jdbc:[3.45.3.0,)")
-
-//    implementation(project(":types"))
+    implementation("io.github.yangentao:types:[1.1.12,)")
 }
 
 tasks.test {
@@ -53,6 +51,7 @@ kotlin {
     jvmToolchain(21)
     compilerOptions {
         jvmTarget = JvmTarget.JVM_11
+        freeCompilerArgs.add("-Xcontext-parameters")
     }
 }
 java {

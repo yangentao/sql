@@ -2,56 +2,13 @@
 
 package io.github.yangentao.sql
 
-
 import io.github.yangentao.kson.JsonResult
-import io.github.yangentao.sql.clause.ALL
-import io.github.yangentao.sql.clause.AND_ALL
-import io.github.yangentao.sql.clause.ASC
-import io.github.yangentao.sql.clause.COUNT
-import io.github.yangentao.sql.clause.DELETE_FROM
-import io.github.yangentao.sql.clause.DESC
-import io.github.yangentao.sql.clause.DISTINCT
-import io.github.yangentao.sql.clause.EQ
-import io.github.yangentao.sql.clause.EQUAL
-import io.github.yangentao.sql.clause.FROM
-import io.github.yangentao.sql.clause.INNER_JOIN
-import io.github.yangentao.sql.clause.INSERT_INTO
-import io.github.yangentao.sql.clause.INSERT_INTO_VALUES
-import io.github.yangentao.sql.clause.JOIN
-import io.github.yangentao.sql.clause.LIMIT
-import io.github.yangentao.sql.clause.LIMIT_OFFSET
-import io.github.yangentao.sql.clause.LT
-import io.github.yangentao.sql.clause.MAX
-import io.github.yangentao.sql.clause.MIN
-import io.github.yangentao.sql.clause.OFFSET
-import io.github.yangentao.sql.clause.ON
-import io.github.yangentao.sql.clause.ORDER_BY
-import io.github.yangentao.sql.clause.ORDER_BY_LIST
-import io.github.yangentao.sql.clause.PropSQL
-import io.github.yangentao.sql.clause.SELECT
-import io.github.yangentao.sql.clause.SET
-import io.github.yangentao.sql.clause.SQLExpress
-import io.github.yangentao.sql.clause.SQLNode
-import io.github.yangentao.sql.clause.UNION
-import io.github.yangentao.sql.clause.UPDATE
-import io.github.yangentao.sql.clause.WHERE
-import io.github.yangentao.sql.clause.WITH_RECURSIVE_SELECT
-import io.github.yangentao.sql.clause.Where
-import io.github.yangentao.sql.clause.asColumn
-import io.github.yangentao.sql.clause.insert
-import io.github.yangentao.sql.clause.query
-import io.github.yangentao.sql.clause.update
+import io.github.yangentao.sql.clause.*
 import io.github.yangentao.sql.pool.namedConnection
 import io.github.yangentao.sql.utils.BadValue
-import io.github.yangentao.types.Prop
-import io.github.yangentao.types.PropInt
-import io.github.yangentao.types.PropLong
-import io.github.yangentao.types.decodeValue
-import io.github.yangentao.types.ieq
-import io.github.yangentao.types.returnClass
+import io.github.yangentao.types.*
 import java.sql.Connection
 import java.sql.ResultSet
-import kotlin.collections.filterNotNull
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
@@ -70,18 +27,6 @@ abstract class BaseModelClass<T : BaseModel> : WithConnection {
         get() {
             return this.tableClass.propertiesHare
         }
-
-    fun SQLExpress.query(): ResultSet {
-        return query(connection)
-    }
-
-    fun SQLExpress.insert(): InsertResult {
-        return insert(connection)
-    }
-
-    fun SQLExpress.update(): Int {
-        return update(connection)
-    }
 
     fun query(sa: String, args: List<Any?> = emptyList()): ResultSet {
         return connection.query(sa, args)
@@ -247,7 +192,7 @@ open class TableModelClass<T : TableModel> : BaseModelClass<T>() {
     }
 
     fun insert(block: (T) -> Unit): ModelInsertResult<T> {
-        val m = tableClass.createInstance()
+        val m: T = tableClass.createInstance()
         block(m)
         val r = m.insert()
         return ModelInsertResult(m, r)

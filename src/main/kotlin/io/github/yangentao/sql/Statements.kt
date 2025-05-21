@@ -201,12 +201,18 @@ fun Connection.prepare(sql: String, args: ArgList, genKeys: Boolean = false): Pr
 }
 
 //index from 1
-data class ReturnKey(val index: Int, val label: String, val key: Long)
+data class ReturnKey(val index: Int, val label: String, val key: Long) {
+    override fun toString(): String {
+        return "ReturnKey(index:$index, label:$label, key:$key )"
+    }
+}
+
 data class InsertResult(val count: Int, val returnkeys: List<ReturnKey>) {
     val success: Boolean get() = count > 0
     val key: Long get() = returnkeys.firstOrNull()?.key ?: 0L
-    val firstKey: Long? get() = returnkeys.firstOrNull()?.key
-    val secondKey: Long? get() = returnkeys.getOrNull(1)?.key
+
+    //    val firstKey: Long? get() = returnkeys.firstOrNull()?.key
+//    val secondKey: Long? get() = returnkeys.getOrNull(1)?.key
     fun keyOf(label: String): Long? {
         return returnkeys.firstOrNull { it.label.equals(label, true) }?.key
     }
@@ -220,14 +226,23 @@ fun PreparedStatement.returnKeys(): List<ReturnKey> {
     val rs = this.generatedKeys
     val meta = rs.metaData
     val ls = ArrayList<ReturnKey>()
-    use {
-        while (rs.next()) {
-            for (i in meta.indices) {
-                if (meta.isAutoIncrement(i)) {
-                    ls += ReturnKey(index = i, label = meta.labelAt(i), key = rs.getLong(i))
+    if (this.connection.isSQLite) {
+        use {
+            if (rs.next()) {
+                // label == 'last_insert_rowid()'
+                ls += ReturnKey(index = 1, label = meta.labelAt(1), key = rs.getLong(1))
+            }
+        }
+    } else {
+        use {
+            while (rs.next()) {
+                for (i in meta.indices) {
+                    if (meta.isAutoIncrement(i)) {
+                        ls += ReturnKey(index = i, label = meta.labelAt(i), key = rs.getLong(i))
+                    }
                 }
             }
         }
-        return ls
     }
+    return ls
 }
