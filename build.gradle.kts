@@ -8,7 +8,7 @@ buildscript {
 }
 plugins {
 //    kotlin("jvm") version "2.1.20"
-    kotlin("jvm") version "2.2.0-RC"
+    kotlin("jvm") version "2.2.0"
     signing
     id("maven-publish")
     id("org.jetbrains.dokka") version "2.0.0"
@@ -17,7 +17,7 @@ plugins {
 
 group = "io.github.yangentao"
 
-version = "1.1.12"
+version = "2.0.0"
 val artifactName = "sql"
 val githubLib = "sql"
 val descLib = "SQL, ORM, Kotlin."
@@ -38,10 +38,10 @@ dependencies {
     compileOnly("org.xerial:sqlite-jdbc:[3.45.3.0,)")
 
 
-    implementation("io.github.yangentao:anno:[1.1.0,)")
-    implementation("io.github.yangentao:xlog:[1.1.3,)")
-    implementation("io.github.yangentao:kson:[1.1.8,)")
-    implementation("io.github.yangentao:types:[1.1.12,)")
+    implementation("io.github.yangentao:anno:[2.0.0,)")
+    implementation("io.github.yangentao:xlog:[2.0.0,)")
+    implementation("io.github.yangentao:kson:[2.0.0,)")
+    implementation("io.github.yangentao:types:[2.0.0,)")
 }
 
 tasks.test {
