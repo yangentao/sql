@@ -150,6 +150,26 @@ infix fun PropSQL.IN(values: Collection<Any>): Where {
     return c..")"
 }
 
+infix fun String.NOT_IN(values: Collection<Any>): Where {
+    if (values.isEmpty()) return IS_NOT_NULL(this.asKey)
+    if (values.size == 1) return this.NE(values.first())
+    val c = newWhere..this.asKey.."NOT IN("
+    c.addList(values) { e, v ->
+        e..v.asValue
+    }
+    return c..")"
+}
+
+infix fun PropSQL.NOT_IN(values: Collection<Any>): Where {
+    if (values.isEmpty()) return IS_NOT_NULL(this.asKey)
+    if (values.size == 1) return this.NE(values.first())
+    val c = newWhere..this.asKey.."NOT IN("
+    c.addList(values) { e, v ->
+        e..v.asValue
+    }
+    return c..")"
+}
+
 fun String.BETWEEN(minValue: Any, maxValue: Any): Where {
     return newWhere..this.asKey.."BETWEEN"..minValue.asValue.."AND"..maxValue.asValue
 }
@@ -201,7 +221,6 @@ fun IS_NOT_NULL(exp: PropSQL): Where {
 fun IS_NOT_NULL(exp: SQLExpress): Where {
     return WhereExp("${exp.sql} IS NOT NULL")
 }
-
 
 fun EXISTS(exp: String): Where {
     return WhereExp("EXISTS $exp")

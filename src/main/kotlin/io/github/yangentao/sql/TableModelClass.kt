@@ -230,6 +230,14 @@ open class TableModelClass<T : TableModel> : BaseModelClass<T>() {
         return update(w, map.entries.map { it.key to it.value })
     }
 
+    fun updateAnd(kv: Pair<Any, Any?>, vararg ws: Where): Int {
+        return this.update(AND_ALL(*ws), kv)
+    }
+
+    fun updateAnd(kvs: List<Pair<Any, Any?>>, vararg ws: Where): Int {
+        return this.update(AND_ALL(*ws), kvs)
+    }
+
     fun updateByKey(key: Any, vararg ps: Pair<Any, Any?>): Int {
         return updateByKey(key, ps.toList())
     }
