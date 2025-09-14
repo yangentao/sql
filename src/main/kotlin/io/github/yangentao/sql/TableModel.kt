@@ -6,11 +6,9 @@ import io.github.yangentao.anno.Exclude
 import io.github.yangentao.kson.Kson
 import io.github.yangentao.sql.clause.*
 import io.github.yangentao.sql.pool.namedConnection
-import io.github.yangentao.sql.utils.XConfig.Companion.updateByKey
 import io.github.yangentao.types.Prop
 import io.github.yangentao.types.getPropValue
 import io.github.yangentao.types.setPropValue
-import io.github.yangentao.xlog.XLog.i
 import java.sql.Connection
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
@@ -92,13 +90,13 @@ abstract class TableModel : BaseModel() {
         val aiList = this::class.propertiesModel.filter { it.annotation.autoInc > 0 }
         val ret = INSERT_INTO(this::class, colList).insert()
         if (aiList.isNotEmpty() && ret.count > 0L) {
-            if(connection.isSQLite){
-                if(aiList.size == 1){
+            if (connection.isSQLite) {
+                if (aiList.size == 1) {
                     aiList.first().property.setPropValue(this, ret.key)
-                }else{
+                } else {
                     error("SQLite Only support ONE auto increase field.")
                 }
-            }else {
+            } else {
                 for (p in aiList) {
                     val v = ret.keyOf(p.property)
                     if (v != null) p.property.setPropValue(this, v)
@@ -109,7 +107,23 @@ abstract class TableModel : BaseModel() {
     }
 
     fun upsert(conflict: Conflicts = Conflicts.Update): InsertResult {
-        return connection.upsert(this, conflict = conflict)
+        val aiList = this::class.propertiesModel.filter { it.annotation.autoInc > 0 }
+        val ret = connection.upsert(this, conflict = conflict)
+        if (aiList.isNotEmpty() && ret.count > 0L) {
+            if (connection.isSQLite) {
+                if (aiList.size == 1) {
+                    aiList.first().property.setPropValue(this, ret.key)
+                } else {
+                    error("SQLite Only support ONE auto increase field.")
+                }
+            } else {
+                for (p in aiList) {
+                    val v = ret.keyOf(p.property)
+                    if (v != null) p.property.setPropValue(this, v)
+                }
+            }
+        }
+        return ret
     }
 
     //update exist properties

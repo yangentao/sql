@@ -46,19 +46,20 @@ open class CommonTableCreator(val connection: Connection, val cls: KClass<*>) {
 
     fun createTable() {
         connection.exec(defineTable())
-        createExtras()
-        val idxList = columns.filter { it.index }
-        for (idx in idxList) {
-            connection.createIndex(tableName, idx.fieldName)
-        }
-    }
-
-    //其他, 索引等
-    open fun createExtras() {
         val c = columns.firstOrNull { it.autoInc && it.autoIncBase > 1 }
         if (c != null) {
             createAutoIncrementBase(c)
         }
+        val idxList = columns.filter { it.index }
+        for (idx in idxList) {
+            connection.createIndex(tableName, idx.fieldName)
+        }
+        createExtras()
+    }
+
+    //其他, 索引等
+    open fun createExtras() {
+
     }
 
     //自增, 开始值

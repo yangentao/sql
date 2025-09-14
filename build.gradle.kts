@@ -17,7 +17,7 @@ plugins {
 
 group = "io.github.yangentao"
 
-version = "2.0.1"
+version = "2.0.2"
 val artifactName = "sql"
 val githubLib = "sql"
 val descLib = "SQL, ORM, Kotlin."
