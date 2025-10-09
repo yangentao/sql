@@ -2,14 +2,7 @@
 
 package io.github.yangentao.sql.clause
 
-
-import io.github.yangentao.sql.ArgList
-import io.github.yangentao.sql.BaseModel
-import io.github.yangentao.sql.BaseModelClass
-import io.github.yangentao.sql.escapeSQL
-import io.github.yangentao.sql.fieldSQL
-import io.github.yangentao.sql.modelFieldSQL
-import io.github.yangentao.sql.nameSQL
+import io.github.yangentao.sql.*
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -20,8 +13,8 @@ internal val newSQLExp: SQLExpress get() = SQLExpress(null)
 
 internal val Any.asValue: SQLExpress
     get() {
-        if (this is String) return newSQLExp.."?" argValue this
-        if (this is Date) return newSQLExp.."?" argValue this
+        if (this is String) return newSQLExp.."?" addArg this
+        if (this is Date) return newSQLExp.."?" addArg this
         return newSQLExp..this
     }
 internal val Any.asKey: SQLExpress
@@ -44,7 +37,7 @@ internal val Any.asColumn: String
 val <T : BaseModel> BaseModelClass<T>.ALL get() = this.tableClass.nameSQL.escapeSQL + ".*"
 
 open class SQLExpress(sqlClause: String? = null, args: List<Any?> = emptyList()) {
-    protected val buffer: StringBuilder = StringBuilder(128)
+    val buffer: StringBuilder = StringBuilder(128)
     val arguments: ArrayList<Any?> = ArrayList()
     val isEmpty: Boolean get() = sql.isEmpty()
     val isNotEmpty: Boolean get() = sql.isNotEmpty()
@@ -55,40 +48,15 @@ open class SQLExpress(sqlClause: String? = null, args: List<Any?> = emptyList())
         if (args.isNotEmpty()) arguments.addAll(args)
     }
 
-    fun addSpace() {
-        buffer.append(" ")
-    }
 
-    fun addSQL(s: String) {
-        if (s.trim().isNotEmpty()) {
-            buffer.append(" ")
-            buffer.append(s)
-        }
-    }
-
-    fun addArgList(args: ArgList?) {
-        if (args != null) arguments.addAll(args)
-    }
-
-    fun addArgs(vararg args: Any?) {
-        arguments.addAll(args)
-    }
-
-    fun mergeSQL(exps: List<SQLExpress>, sep: String, transform: ((SQLExpress) -> String)? = null) {
+    fun addAll(exps: List<SQLExpress>, sep: String, transform: ((SQLExpress) -> String)? = null) {
         buffer.append(' ')
         buffer.append(exps.filter { it.isNotEmpty }.joinToString(sep, transform = transform ?: { it.sql }))
-    }
-
-    fun mergeArgs(exps: List<SQLExpress>) {
         for (e in exps) {
             arguments.addAll(e.arguments)
         }
     }
 
-    fun addArgument(arg: Any): SQLExpress {
-        arguments.add(arg)
-        return this
-    }
 
     fun append(express: Any): SQLExpress {
         buffer.append(' ')
@@ -111,12 +79,6 @@ open class SQLExpress(sqlClause: String? = null, args: List<Any?> = emptyList())
         return this
     }
 
-    fun wrapBrace(): SQLExpress {
-        this.buffer.insert(0, '(')
-        this.buffer.append(')')
-        return this
-    }
-
     override fun toString(): String {
         return sql
     }
@@ -131,16 +93,25 @@ open class SQLExpress(sqlClause: String? = null, args: List<Any?> = emptyList())
 
 val <T : SQLExpress> T.braced: T
     get() {
-        this.wrapBrace()
+        this.buffer.insert(0, '(')
+        this.buffer.append(')')
         return this
     }
 
-infix fun <T : SQLExpress> T.argValue(arg: Any): T {
+fun <T : SQLExpress> T.addSQL(s: String): T {
+    if (s.trim().isNotEmpty()) {
+        buffer.append(" ")
+        buffer.append(s)
+    }
+    return this
+}
+
+infix fun <T : SQLExpress> T.addArg(arg: Any): T {
     arguments.add(arg)
     return this
 }
 
-fun <T : SQLExpress> T.argList(args: Collection<Any>): T {
+fun <T : SQLExpress> T.addArgs(args: ArgList): T {
     arguments.addAll(args)
     return this
 }

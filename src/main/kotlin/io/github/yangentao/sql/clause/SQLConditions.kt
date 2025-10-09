@@ -16,31 +16,29 @@ open class Where(condition: String? = null) : SQLExpress(condition)
 
 class WhereAnd(ws: List<Where>) : Where() {
     init {
-        mergeSQL(ws, " AND ") {
+        addAll(ws, " AND ") {
             if (it is WhereOr) it.braced.sql else it.sql
         }
-        mergeArgs(ws)
     }
 }
 
 class WhereOr(ws: List<Where>) : Where() {
     init {
-        mergeSQL(ws, " OR ")
-        mergeArgs(ws)
+        addAll(ws, " OR ")
     }
 }
 
 class WhereOper(left: String, op: String, right: String?, args: ArgList? = null) : Where() {
     init {
         addSQL("$left $op $right")
-        addArgList(args)
+        if (args != null) addArgs(args)
     }
 }
 
 class WhereExp(exp: String, args: ArgList? = null) : Where() {
     init {
         append(exp)
-        addArgList(args)
+        if (args != null) addArgs(args)
     }
 }
 
@@ -271,7 +269,7 @@ infix fun PropSQL.HAS_ANY_BIT(value: Int): Where {
 }
 
 infix fun PropSQL.ARRAY_ANY(value: Any): Where {
-    return Where("ANY(${this.asColumn})=?") argValue value
+    return Where("ANY(${this.asColumn})=?") addArg value
 }
 
 //SELECT * from beltdev where (beltdev.tags)::jsonb @> '["一组"]'::jsonb;

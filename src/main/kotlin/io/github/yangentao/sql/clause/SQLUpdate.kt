@@ -28,7 +28,7 @@ fun INSERT_INTO_VALUES(table: Any, cols: List<Any>, values: List<List<Any?>>): S
             when (p) {
                 null -> ex.."NULL"
                 is Number -> ex..p.toString()
-                else -> ex.."?" argValue p
+                else -> ex.."?" addArg p
             }
         }
         if (idx == values.lastIndex) {
@@ -72,12 +72,34 @@ fun SQLNode.SET(keyValues: List<Pair<Any, Any?>>): SQLNode {
     this.."SET"
     this.addList(keyValues) { e, p ->
         val col = p.first.asColumn
-        val value = p.second
-        when (value) {
+        when (val value = p.second) {
             null -> e..col.."= NULL"
             is Number -> e..col.."="..value
-            else -> e..col.."= ?" argValue value
+            is SQLExpress -> {
+                e..col.."="..value
+            }
+
+            else -> e..col.."= ?" addArg value
         }
     }
     return this
+}
+
+infix fun PropSQL.INC_INT(n: Int): Pair<PropSQL, SQLExpress> {
+    val s: String = if (n < 0) n.toString() else "+$n"
+    return this.SELF_OP(s)
+}
+
+infix fun PropSQL.INC_LONG(n: Long): Pair<PropSQL, SQLExpress> {
+    val s: String = if (n < 0) n.toString() else "+$n"
+    return this.SELF_OP(s)
+}
+
+infix fun PropSQL.INC_REAL(n: Double): Pair<PropSQL, SQLExpress> {
+    val s: String = if (n < 0) n.toString() else "+$n"
+    return this.SELF_OP(s)
+}
+
+infix fun PropSQL.SELF_OP(s: String): Pair<PropSQL, SQLExpress> {
+    return this to SQLExpress("${this.asColumn} $s")
 }
