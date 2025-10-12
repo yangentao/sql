@@ -1,5 +1,6 @@
 package io.github.yangentao.sql.utils
 
+import io.github.yangentao.anno.Length
 import io.github.yangentao.anno.ModelField
 import io.github.yangentao.sql.TableModel
 import io.github.yangentao.sql.TableModelClass
@@ -15,6 +16,7 @@ class XConfig : TableModel() {
     var name: String by model
 
     @ModelField
+    @Length(max = 2048)
     var valueText: String? by model
 
     @ModelField
