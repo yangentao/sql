@@ -3,6 +3,7 @@
 package io.github.yangentao.sql.pool
 
 import io.github.yangentao.sql.SQLog
+import io.github.yangentao.sql.sqlLog
 import io.github.yangentao.types.ProxyInvoker
 import io.github.yangentao.types.invokeInstance
 import io.github.yangentao.types.proxyInterface
@@ -71,7 +72,7 @@ class ConnectionProxy(val connection: Connection) : ProxyInvoker {
                 if (st.lastExecuteTime.get() == 0L || (tm - st.lastExecuteTime.get() < STATEMENT_ALIVE_MILL)) {
                     return false
                 } else {
-                    SQLog.err("Statement maybe NOT be closed")
+                    sqlLog.e("Statement maybe NOT be closed")
                 }
             }
         }
@@ -116,7 +117,7 @@ class ConnectionProxy(val connection: Connection) : ProxyInvoker {
         lastOperateTime.set(endTime)
         val delta = endTime - startTime
         if (delta > 1_000) {
-            SQLog.debug("WARING: execute ${method.name} time:", delta)
+            sqlLog.d("WARING: execute ${method.name} time:", delta)
         }
     }
 

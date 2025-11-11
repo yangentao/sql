@@ -3,6 +3,7 @@
 package io.github.yangentao.sql.pool
 
 import io.github.yangentao.sql.SQLog
+import io.github.yangentao.sql.sqlLog
 import java.sql.Connection
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -65,7 +66,7 @@ object EntaoPool : NamedConnections {
             return pc
         } catch (ex: Exception) {
             connCount.decrementAndGet()
-            SQLog.err("Create New Connection Failed.")
+            sqlLog.e("Create New Connection Failed.")
             throw ex
         }
     }
@@ -134,13 +135,13 @@ object EntaoPool : NamedConnections {
             }
         }
         if (removedList.isNotEmpty()) {
-            SQLog.debug("PoolSize: ", totalSize, " Recyled:", removedList.size)
+            sqlLog.d("PoolSize: ", totalSize, " Recyled:", removedList.size)
         }
     }
 
     @Synchronized
     override fun destroy() {
-        SQLog.debug("SimplePool.destroy ")
+        sqlLog.d("SimplePool.destroy ")
         connectionMap.values.forEach { ls ->
             ls.forEach {
                 if (!it.connection.isClosed) {

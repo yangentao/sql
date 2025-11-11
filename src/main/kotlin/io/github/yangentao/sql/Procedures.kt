@@ -9,6 +9,7 @@ import io.github.yangentao.anno.ParamOut
 import io.github.yangentao.anno.SQLProcedure
 import io.github.yangentao.anno.userName
 import io.github.yangentao.sql.pool.namedConnection
+import io.github.yangentao.sql.sqlLog
 import io.github.yangentao.types.ownerClass
 import io.github.yangentao.types.valueParams
 import java.math.BigDecimal
@@ -80,9 +81,9 @@ fun Connection.procedureCall(proc: SQLProc, args: List<Any?>): LinkedHashMap<Str
             return map
         }
     } catch (ex: Exception) {
-        println("Error Proc: ${proc.userName}")
-        println("Args: $args ")
-        ex.printStackTrace()
+        sqlLog.e("Error Proc: ${proc.userName}")
+        sqlLog.e("Args: $args ")
+        sqlLog.e(ex)
         throw ex
     }
 }
@@ -114,8 +115,8 @@ fun Connection.functionCreate(funText: String) {
             st.execute()
         }
     } catch (ex: Exception) {
-        println("Create Function Error: $funText")
-        ex.printStackTrace()
+        sqlLog.e("Create Function Error: $funText")
+        sqlLog.e(ex)
     }
 
 }

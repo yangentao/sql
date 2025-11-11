@@ -3,6 +3,7 @@
 package io.github.yangentao.sql
 
 import io.github.yangentao.kson.*
+import io.github.yangentao.sql.sqlLog
 import io.github.yangentao.types.Prop
 import io.github.yangentao.types.plusAssign
 import io.github.yangentao.types.rootError
@@ -31,9 +32,9 @@ fun Connection.insert(sql: String, arguments: ArgList): InsertResult {
             }
         }
     } catch (ex: Throwable) {
-        SQLog.err("SQL Error: ", sql)
-        SQLog.err("SQL Error Args: ", arguments)
-        SQLog.err("Error Message: ", ex.rootError.message)
+        sqlLog.e("SQL Error: ", sql)
+        sqlLog.e("SQL Error Args: ", arguments)
+        sqlLog.e("Error Message: ", ex.rootError.message)
         throw ex
     }
 }
@@ -42,9 +43,9 @@ fun Connection.query(sql: String, arguments: ArgList = emptyList()): ResultSet {
     try {
         return this.prepare(sql, arguments).executeQuery()
     } catch (ex: Throwable) {
-        SQLog.err("SQL Error: ", sql)
-        SQLog.err("Args: ", arguments)
-        SQLog.err("Error Message: ", ex.rootError.message)
+        sqlLog.e("SQL Error: ", sql)
+        sqlLog.e("Args: ", arguments)
+        sqlLog.e("Error Message: ", ex.rootError.message)
         throw ex
     }
 }
@@ -55,9 +56,9 @@ fun Connection.update(sql: String, arguments: ArgList = emptyList()): Int {
             it.executeUpdate()
         }
     } catch (ex: Throwable) {
-        SQLog.err("SQL Error: ", sql)
-        SQLog.err("Args: ", arguments)
-        SQLog.err("Error Message: ", ex.rootError.message)
+        sqlLog.e("SQL Error: ", sql)
+        sqlLog.e("Args: ", arguments)
+        sqlLog.e("Error Message: ", ex.rootError.message)
         throw ex
     }
 }
@@ -68,9 +69,9 @@ fun Connection.exec(sql: String, arguments: ArgList = emptyList()): Boolean {
             it.execute()
         }
     } catch (ex: Exception) {
-        SQLog.err("Error SQL: ", sql)
-        SQLog.err("Args: ", arguments)
-        SQLog.err("Error Message: ", ex.rootError.message)
+        sqlLog.e("Error SQL: ", sql)
+        sqlLog.e("Args: ", arguments)
+        sqlLog.e("Error Message: ", ex.rootError.message)
         throw ex
     }
 }
@@ -83,8 +84,8 @@ inline fun Connection.trans(block: (Connection) -> Unit) {
     } catch (ex: Exception) {
         this.rollback()
         ex.printStackTrace()
-        SQLog.err(ex)
-        SQLog.err(ex.stackTraceToString())
+        sqlLog.e(ex)
+        sqlLog.e(ex.stackTraceToString())
         throw ex
     } finally {
         this.autoCommit = true

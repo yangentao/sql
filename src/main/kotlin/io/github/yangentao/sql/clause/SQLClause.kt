@@ -3,6 +3,7 @@
 package io.github.yangentao.sql.clause
 
 import io.github.yangentao.sql.*
+import io.github.yangentao.sql.sqlLog
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -84,9 +85,9 @@ open class SQLExpress(sqlClause: String? = null, args: List<Any?> = emptyList())
     }
 
     fun dump() {
-        println("SQL: $this")
+        sqlLog.d("SQL: $this")
         if (arguments.isNotEmpty()) {
-            println("Arguments: " + arguments.joinToString(", "))
+            sqlLog.d("Arguments: " + arguments.joinToString(", "))
         }
     }
 }
