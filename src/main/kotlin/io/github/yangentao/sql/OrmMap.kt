@@ -53,7 +53,7 @@ class OrmMap(capacity: Int = 32) : HashMap<String, Any?>(capacity) {
     //sqlite 返回的结果集中, columnLabel 是 user.id, user.name
     //mysql 返回的结果集 columnLabel 是 id, name
     inline operator fun <reified V> getValue(thisRef: Any?, property: KProperty<*>): V {
-        val v = this[property.fieldSQL] ?: this[property.userName] ?: this[property.modelFieldSQL]
+        val v = this[property.fieldSQL] ?: this[property.userName] ?: this[property.fullNmeSQL]
         val dv = property.decodeValue(v) as V
         return dv
     }

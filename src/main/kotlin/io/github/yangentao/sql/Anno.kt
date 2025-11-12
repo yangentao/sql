@@ -73,8 +73,8 @@ object RelationListTarget {
         } else error("Foreign Class misstake, $property")
 
         val node = SELECT(targetClass.nameSQL.escapeSQL + ".*")
-            .FROM(targetClass INNER_JOIN relatedClass ON (targetPK.modelFieldSQL EQUAL relTargetPK.modelFieldSQL))
-            .WHERE(relThisPK.modelFieldSQL EQ thisPKValue)
+            .FROM(targetClass INNER_JOIN relatedClass ON (targetPK.fullNmeSQL EQUAL relTargetPK.fullNmeSQL))
+            .WHERE(relThisPK.fullNmeSQL EQ thisPKValue)
             .ORDER_BY(targetPK.ASC)
             .LIMIT(relatedBy.limit)
         return node.query(thisClass.namedConnection).list { orm(targetClass) }

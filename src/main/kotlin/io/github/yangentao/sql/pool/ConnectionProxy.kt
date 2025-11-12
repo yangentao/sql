@@ -2,7 +2,6 @@
 
 package io.github.yangentao.sql.pool
 
-import io.github.yangentao.sql.SQLog
 import io.github.yangentao.sql.sqlLog
 import io.github.yangentao.types.ProxyInvoker
 import io.github.yangentao.types.invokeInstance

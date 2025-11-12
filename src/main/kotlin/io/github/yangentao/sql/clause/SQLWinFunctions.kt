@@ -7,12 +7,12 @@ class WinindowFunction(sql: String? = null) : SQLFunction(sql)
 private val newWinFunc: WinindowFunction get() = WinindowFunction()
 
 private fun buildWindowSQL(partionBy: Any?, vararg orderBy: Any): SQLExpress {
-    val e = newSQLExp
-    if (partionBy != null) e.."PARTITION BY"..partionBy.asKey
+    val e = newExp
+    if (partionBy != null) e.."PARTITION BY"..partionBy.asExpress
     if (orderBy.isNotEmpty()) {
         e.."ORDER BY"
         e.addList(orderBy.toList()) { a, item ->
-            a..item.asKey
+            a..item.asExpress
         }
     }
     return e
@@ -43,24 +43,24 @@ fun DENSE_RANK(): WinindowFunction {
 }
 
 fun FIRST_VALUE(exp: Any): WinindowFunction {
-    return newWinFunc.."FIRST_VALUE("..exp.asKey..")"
+    return newWinFunc.."FIRST_VALUE("..exp.asExpress..")"
 }
 
 fun LAST_VALUE(exp: Any): WinindowFunction {
-    return newWinFunc.."LAST_VALUE("..exp.asKey..")"
+    return newWinFunc.."LAST_VALUE("..exp.asExpress..")"
 }
 
 //nth > 0
 fun NTH_VALUE(exp: Any, nth: Int): WinindowFunction {
-    return newWinFunc.."NTH_VALUE("..exp.asKey..","..nth..")"
+    return newWinFunc.."NTH_VALUE("..exp.asExpress..","..nth..")"
 }
 
 fun LEAD(exp: Any, offset: Int, defaultValue: Any?): WinindowFunction {
-    if (defaultValue == null) return newWinFunc.."LEAD("..exp.asKey..","..offset..")"
-    return newWinFunc.."LEAD("..exp.asKey..","..offset..","..defaultValue..")"
+    if (defaultValue == null) return newWinFunc.."LEAD("..exp.asExpress..","..offset..")"
+    return newWinFunc.."LEAD("..exp.asExpress..","..offset..","..defaultValue..")"
 }
 
 fun LAG(exp: Any, offset: Int, defaultValue: Any?): WinindowFunction {
-    if (defaultValue == null) return newWinFunc.."LAG("..exp.asKey..","..offset..")"
-    return newWinFunc.."LAG("..exp.asKey..","..offset..","..defaultValue..")"
+    if (defaultValue == null) return newWinFunc.."LAG("..exp.asExpress..","..offset..")"
+    return newWinFunc.."LAG("..exp.asExpress..","..offset..","..defaultValue..")"
 }

@@ -7,7 +7,6 @@ import io.github.yangentao.sql.pool.HarePool
 import io.github.yangentao.types.decodeValue
 import io.github.yangentao.types.encodeToString
 import java.sql.Connection
-import kotlin.collections.set
 import kotlin.reflect.KProperty
 
 /**

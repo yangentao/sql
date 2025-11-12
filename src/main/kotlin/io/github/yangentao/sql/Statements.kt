@@ -3,7 +3,6 @@
 package io.github.yangentao.sql
 
 import io.github.yangentao.kson.*
-import io.github.yangentao.sql.sqlLog
 import io.github.yangentao.types.Prop
 import io.github.yangentao.types.plusAssign
 import io.github.yangentao.types.rootError

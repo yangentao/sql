@@ -15,25 +15,25 @@ infix fun SQLFunction.FILTER(condition: Where): Where {
 }
 
 fun DATE_PART(field: String, source: Any): SQLExpress {
-    return newSQLExp.."DATE_PART("..field..","..source.asKey..")"
+    return newExp.."DATE_PART("..field..","..source.asExpress..")"
 }
 
 fun SUM(exp: Any): SQLExpress {
-    return newSQLExp.."SUM("..exp.asKey..")"
+    return newExp.."SUM("..exp.asExpress..")"
 }
 
 fun MIN(exp: Any): SQLExpress {
-    return newSQLExp.."MIN("..exp.asKey..")"
+    return newExp.."MIN("..exp.asExpress..")"
 }
 
 fun MAX(exp: Any): SQLExpress {
-    return newSQLExp.."MAX("..exp.asKey..")"
+    return newExp.."MAX("..exp.asExpress..")"
 }
 
 fun AVG(exp: Any): SQLExpress {
-    return newSQLExp.."AVG("..exp.asKey..")"
+    return newExp.."AVG("..exp.asExpress..")"
 }
 
 fun TO_NUMBER(exp: Any, format: String): SQLExpress {
-    return newSQLExp.."TO_NUMBER("..exp.asKey..", '"..format.."')"
+    return newExp.."TO_NUMBER("..exp.asExpress..", '"..format.."')"
 }

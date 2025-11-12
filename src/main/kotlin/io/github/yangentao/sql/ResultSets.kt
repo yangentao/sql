@@ -3,7 +3,6 @@
 package io.github.yangentao.sql
 
 import io.github.yangentao.anno.userName
-import io.github.yangentao.sql.sqlLog
 import io.github.yangentao.types.decodeValue
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData

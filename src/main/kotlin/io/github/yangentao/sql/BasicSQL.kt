@@ -44,7 +44,7 @@ val KProperty<*>.fieldSQL: String
     get() {
         return this.findAnnotation<Name>()?.value or this.name.lowercase()
     }
-val KProperty<*>.modelFieldSQL: String
+val KProperty<*>.fullNmeSQL: String
     get() {
         return "${this.ownerClass!!.nameSQL}.${this.fieldSQL}"
     }

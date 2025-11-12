@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package io.github.yangentao.sql.pool
 
 import java.sql.Connection
@@ -78,7 +80,7 @@ class SqliteConnectionBuilder(val file: String) : ConnectionBuilder {
         }
 
         fun temp(): SqliteConnectionBuilder {
-            return SqliteConnectionBuilder("")
+            return SqliteConnectionBuilder(TEMP)
         }
     }
 }
@@ -147,6 +149,10 @@ class DelegatePool : NamedConnections {
     }
 
     override fun destroy() {
+        val ls = dataSourceMap.values.toList()
+        for (b in ls) {
+            b.destroy()
+        }
         dataSourceMap.clear()
     }
 

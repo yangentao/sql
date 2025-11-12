@@ -5,7 +5,7 @@ package io.github.yangentao.sql.clause
 import io.github.yangentao.sql.ArgList
 import io.github.yangentao.sql.escapeSQL
 import io.github.yangentao.sql.fieldSQL
-import io.github.yangentao.sql.modelFieldSQL
+import io.github.yangentao.sql.fullNmeSQL
 import io.github.yangentao.types.quoted
 
 //https://sqlite.org/optoverview.html#the_between_optimization
@@ -30,15 +30,15 @@ class WhereOr(ws: List<Where>) : Where() {
 
 class WhereOper(left: String, op: String, right: String?, args: ArgList? = null) : Where() {
     init {
-        addSQL("$left $op $right")
-        if (args != null) addArgs(args)
+        append("$left $op $right")
+        withArgs(args)
     }
 }
 
 class WhereExp(exp: String, args: ArgList? = null) : Where() {
     init {
         append(exp)
-        if (args != null) addArgs(args)
+        withArgs(args)
     }
 }
 
@@ -78,60 +78,60 @@ fun EQ_ALL(cs: List<Pair<PropSQL, Any?>>): Where {
 }
 
 infix fun String.EQ(value: Any?): Where {
-    if (value == null) return IS_NULL(this.asKey)
-    return newWhere..this.asKey.."="..value.asValue
+    if (value == null) return IS_NULL(this.asExpress)
+    return newWhere..this.asExpress.."="..value.asValue
 }
 
 infix fun PropSQL.EQ(value: Any?): Where {
-    if (value == null) return IS_NULL(this.asKey)
-    return newWhere..this.asKey.."="..value.asValue
+    if (value == null) return IS_NULL(this.asExpress)
+    return newWhere..this.asExpress.."="..value.asValue
 }
 
 infix fun String.NE(value: Any?): Where {
     if (value == null) return IS_NOT_NULL(this)
-    return newWhere..this.asKey.."<>"..value.asValue
+    return newWhere..this.asExpress.."<>"..value.asValue
 }
 
 infix fun PropSQL.NE(value: Any): Where {
-    return newWhere..this.asKey.."<>"..value.asValue
+    return newWhere..this.asExpress.."<>"..value.asValue
 }
 
 infix fun String.LE(value: Any): Where {
-    return newWhere..this.asKey.."<="..value.asValue
+    return newWhere..this.asExpress.."<="..value.asValue
 }
 
 infix fun PropSQL.LE(value: Any): Where {
-    return newWhere..this.asKey.."<="..value.asValue
+    return newWhere..this.asExpress.."<="..value.asValue
 }
 
 infix fun String.GE(value: Any): Where {
-    return newWhere..this.asKey..">="..value.asValue
+    return newWhere..this.asExpress..">="..value.asValue
 }
 
 infix fun PropSQL.GE(value: Any): Where {
-    return newWhere..this.asKey..">="..value.asValue
+    return newWhere..this.asExpress..">="..value.asValue
 }
 
 infix fun String.LT(value: Any): Where {
-    return newWhere..this.asKey.."<"..value.asValue
+    return newWhere..this.asExpress.."<"..value.asValue
 }
 
 infix fun PropSQL.LT(value: Any): Where {
-    return newWhere..this.asKey.."<"..value.asValue
+    return newWhere..this.asExpress.."<"..value.asValue
 }
 
 infix fun String.GT(value: Any): Where {
-    return newWhere..this.asKey..">"..value.asValue
+    return newWhere..this.asExpress..">"..value.asValue
 }
 
 infix fun PropSQL.GT(value: Any): Where {
-    return newWhere..this.asKey..">"..value.asValue
+    return newWhere..this.asExpress..">"..value.asValue
 }
 
 infix fun String.IN(values: Collection<Any>): Where {
-    if (values.isEmpty()) return IS_NULL(this.asKey)
+    if (values.isEmpty()) return IS_NULL(this.asExpress)
     if (values.size == 1) return this.EQ(values.first())
-    val c = newWhere..this.asKey.."IN("
+    val c = newWhere..this.asExpress.."IN("
     c.addList(values) { e, v ->
         e..v.asValue
     }
@@ -139,9 +139,9 @@ infix fun String.IN(values: Collection<Any>): Where {
 }
 
 infix fun PropSQL.IN(values: Collection<Any>): Where {
-    if (values.isEmpty()) return IS_NULL(this.asKey)
+    if (values.isEmpty()) return IS_NULL(this.asExpress)
     if (values.size == 1) return this.EQ(values.first())
-    val c = newWhere..this.asKey.."IN("
+    val c = newWhere..this.asExpress.."IN("
     c.addList(values) { e, v ->
         e..v.asValue
     }
@@ -149,9 +149,9 @@ infix fun PropSQL.IN(values: Collection<Any>): Where {
 }
 
 infix fun String.NOT_IN(values: Collection<Any>): Where {
-    if (values.isEmpty()) return IS_NOT_NULL(this.asKey)
+    if (values.isEmpty()) return IS_NOT_NULL(this.asExpress)
     if (values.size == 1) return this.NE(values.first())
-    val c = newWhere..this.asKey.."NOT IN("
+    val c = newWhere..this.asExpress.."NOT IN("
     c.addList(values) { e, v ->
         e..v.asValue
     }
@@ -159,9 +159,9 @@ infix fun String.NOT_IN(values: Collection<Any>): Where {
 }
 
 infix fun PropSQL.NOT_IN(values: Collection<Any>): Where {
-    if (values.isEmpty()) return IS_NOT_NULL(this.asKey)
+    if (values.isEmpty()) return IS_NOT_NULL(this.asExpress)
     if (values.size == 1) return this.NE(values.first())
-    val c = newWhere..this.asKey.."NOT IN("
+    val c = newWhere..this.asExpress.."NOT IN("
     c.addList(values) { e, v ->
         e..v.asValue
     }
@@ -169,31 +169,31 @@ infix fun PropSQL.NOT_IN(values: Collection<Any>): Where {
 }
 
 fun String.BETWEEN(minValue: Any, maxValue: Any): Where {
-    return newWhere..this.asKey.."BETWEEN"..minValue.asValue.."AND"..maxValue.asValue
+    return newWhere..this.asExpress.."BETWEEN"..minValue.asValue.."AND"..maxValue.asValue
 }
 
 fun PropSQL.BETWEEN(minValue: Any, maxValue: Any): Where {
-    return newWhere..this.asKey.."BETWEEN"..minValue.asValue.."AND"..maxValue.asValue
+    return newWhere..this.asExpress.."BETWEEN"..minValue.asValue.."AND"..maxValue.asValue
 }
 
 infix fun String.LIKE(pattern: String): Where {
     val s = pattern.filter { it !in likeDenyChars }
-    return newWhere..this.asKey.."LIKE".."'$s'"
+    return newWhere..this.asExpress.."LIKE".."'$s'"
 }
 
 infix fun PropSQL.LIKE(pattern: String): Where {
     val s = pattern.filter { it !in likeDenyChars }
-    return newWhere..this.asKey.."LIKE".."'$s'"
+    return newWhere..this.asExpress.."LIKE".."'$s'"
 }
 
 infix fun String.CONTAINS(value: String): Where {
     val s = value.filter { it !in likeDenyChars + likeAllowChars }
-    return newWhere..this.asKey.."LIKE".."'%$s%'"
+    return newWhere..this.asExpress.."LIKE".."'%$s%'"
 }
 
 infix fun PropSQL.CONTAINS(value: String): Where {
     val s = value.filter { it !in likeDenyChars + likeAllowChars }
-    return newWhere..this.asKey.."LIKE".."'%$s%'"
+    return newWhere..this.asExpress.."LIKE".."'%$s%'"
 }
 
 fun IS_NULL(exp: String): Where {
@@ -253,48 +253,48 @@ fun ALL_OF(exp: Any): Where {
 }
 
 infix fun String.HAS_ALL_BITS(value: Int): Where {
-    return newWhere..this.asKey.."&"..value.."="..value
+    return newWhere..this.asExpress.."&"..value.."="..value
 }
 
 infix fun PropSQL.HAS_ALL_BITS(value: Int): Where {
-    return newWhere..this.asKey.."&"..value.."="..value
+    return newWhere..this.asExpress.."&"..value.."="..value
 }
 
 infix fun String.HAS_ANY_BIT(value: Int): Where {
-    return newWhere..this.asKey.."&"..value.."!= 0"
+    return newWhere..this.asExpress.."&"..value.."!= 0"
 }
 
 infix fun PropSQL.HAS_ANY_BIT(value: Int): Where {
-    return newWhere..this.asKey.."&"..value.."!= 0"
+    return newWhere..this.asExpress.."&"..value.."!= 0"
 }
 
 infix fun PropSQL.ARRAY_ANY(value: Any): Where {
-    return Where("ANY(${this.asColumn})=?") addArg value
+    return Where("ANY(${this.asColumn})=?") withArg value
 }
 
 //SELECT * from beltdev where (beltdev.tags)::jsonb @> '["一组"]'::jsonb;
 infix fun PropSQL.JSONB_EXIST(value: String): Where {
-    return Where("${this.modelFieldSQL.escapeSQL}::jsonb @> '$value'::jsonb")
+    return Where("${this.fullNmeSQL.escapeSQL}::jsonb @> '$value'::jsonb")
 }
 
 // JSONB_ARRAY_EXIST_VALUE(Person::tags, "teacher")
 fun JSONB_ARRAY_EXIST_TEXT(prop: PropSQL, value: String): Where {
-    return Where("${prop.modelFieldSQL.escapeSQL}::jsonb @> '${value.quoted}'::jsonb")
+    return Where("${prop.fullNmeSQL.escapeSQL}::jsonb @> '${value.quoted}'::jsonb")
 }
 
 // JSONB_ARRAY_EXIST_VALUE(Person::tags, 32)
 fun JSONB_ARRAY_EXIST_NUMBER(prop: PropSQL, value: Number): Where {
-    return Where("${prop.modelFieldSQL.escapeSQL}::jsonb @> '$value'::jsonb")
+    return Where("${prop.fullNmeSQL.escapeSQL}::jsonb @> '$value'::jsonb")
 }
 
 // JSONB_ARRAY_EXIST_VALUE(Person::tags, listOf("teacher","student"))
 fun JSONB_ARRAY_EXIST_TEXTS(prop: PropSQL, values: Iterable<String>): Where {
     val j = values.joinToString(",") { it.quoted }
-    return Where("${prop.modelFieldSQL.escapeSQL}::jsonb @> '[$j]'::jsonb")
+    return Where("${prop.fullNmeSQL.escapeSQL}::jsonb @> '[$j]'::jsonb")
 }
 
 // JSONB_ARRAY_EXIST_VALUES(Person::tags, listOf(1, 2))
 fun JSONB_ARRAY_EXIST_NUMBERS(prop: PropSQL, values: Iterable<Number>): Where {
     val j = values.joinToString(",") { it.toString() }
-    return Where("${prop.modelFieldSQL.escapeSQL}::jsonb @> '[$j]'::jsonb")
+    return Where("${prop.fullNmeSQL.escapeSQL}::jsonb @> '[$j]'::jsonb")
 }

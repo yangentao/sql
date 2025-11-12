@@ -3,27 +3,30 @@
 package io.github.yangentao.sql.clause
 
 import io.github.yangentao.sql.*
-import io.github.yangentao.sql.sqlLog
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 typealias PropSQL = KProperty<*>
 
-internal val newSQLExp: SQLExpress get() = SQLExpress(null)
+internal val newExp: SQLExpress get() = SQLExpress(null)
 
 internal val Any.asValue: SQLExpress
     get() {
-        if (this is String) return newSQLExp.."?" addArg this
-        if (this is Date) return newSQLExp.."?" addArg this
-        return newSQLExp..this
+        return when (this) {
+            is String -> newExp.."?" withArg this
+            is Date -> newExp.."?" withArg this
+            is PropSQL -> SQLExpress(this.fullNmeSQL)
+            is SQLExpress -> this
+            else -> newExp..this
+        }
     }
-internal val Any.asKey: SQLExpress
+internal val Any.asExpress: SQLExpress
     get() {
         return when (this) {
-            is String -> newSQLExp..this.escapeSQL
-            is SQLExpress -> SQLExpress(this.sql.escapeSQL, this.arguments)
-            else -> newSQLExp..this
+            is String -> newExp..this.escapeSQL
+            is SQLExpress -> this
+            else -> newExp..this
         }
     }
 internal val Any.asColumn: String
@@ -37,18 +40,18 @@ internal val Any.asColumn: String
 
 val <T : BaseModel> BaseModelClass<T>.ALL get() = this.tableClass.nameSQL.escapeSQL + ".*"
 
-open class SQLExpress(sqlClause: String? = null, args: List<Any?> = emptyList()) {
+open class SQLExpress(sqlClause: String? = null, args: ArgList = emptyList()) {
     val buffer: StringBuilder = StringBuilder(128)
     val arguments: ArrayList<Any?> = ArrayList()
-    val isEmpty: Boolean get() = sql.isEmpty()
-    val isNotEmpty: Boolean get() = sql.isNotEmpty()
-    val sql: String get() = buffer.toString().trim()
 
     init {
         if (sqlClause != null) buffer.append(sqlClause.trim())
         if (args.isNotEmpty()) arguments.addAll(args)
     }
 
+    val isEmpty: Boolean get() = sql.isEmpty()
+    val isNotEmpty: Boolean get() = sql.isNotEmpty()
+    val sql: String get() = buffer.toString().trim()
 
     fun addAll(exps: List<SQLExpress>, sep: String, transform: ((SQLExpress) -> String)? = null) {
         buffer.append(' ')
@@ -58,9 +61,8 @@ open class SQLExpress(sqlClause: String? = null, args: List<Any?> = emptyList())
         }
     }
 
-
-    fun append(express: Any): SQLExpress {
-        buffer.append(' ')
+    fun append(express: Any, sep: String = " "): SQLExpress {
+        buffer.append(sep)
         when (express) {
             is String -> buffer.append(express.trim())
             is SQLExpress -> {
@@ -69,7 +71,7 @@ open class SQLExpress(sqlClause: String? = null, args: List<Any?> = emptyList())
             }
 
             is Number -> buffer.append(express.toString())
-            is PropSQL -> buffer.append(express.modelFieldSQL.escapeSQL)
+            is PropSQL -> buffer.append(express.fullNmeSQL.escapeSQL)
             is KClass<*> -> buffer.append(express.nameSQL.escapeSQL)
             is BaseModelClass<*> -> buffer.append(express.tableClass.nameSQL.escapeSQL)
             is List<*> -> this.addList(express.filterNotNull())
@@ -99,30 +101,33 @@ val <T : SQLExpress> T.braced: T
         return this
     }
 
-fun <T : SQLExpress> T.addSQL(s: String): T {
-    if (s.trim().isNotEmpty()) {
-        buffer.append(" ")
-        buffer.append(s)
-    }
+infix fun <T : SQLExpress> T.withArg(arg: Any): T {
+    arguments.add(arg)
     return this
 }
 
+@Deprecated("user withArg instead")
 infix fun <T : SQLExpress> T.addArg(arg: Any): T {
     arguments.add(arg)
     return this
 }
 
-fun <T : SQLExpress> T.addArgs(args: ArgList): T {
-    arguments.addAll(args)
+fun <T : SQLExpress> T.withArgs(args: ArgList?): T {
+    if (args != null && args.isNotEmpty()) arguments.addAll(args)
+    return this
+}
+
+@Deprecated("user withArgs instead")
+fun <T : SQLExpress> T.addArgs2(args: ArgList?): T {
+    if (args != null && args.isNotEmpty()) arguments.addAll(args)
     return this
 }
 
 fun <T : SQLExpress> T.addList(exps: Collection<Any>, joinString: String = ","): T {
-    val ls = exps
-    if (ls.isEmpty()) return this
-    for ((n, item) in ls.withIndex()) {
-        if (n != 0) this add joinString
-        this add item
+    if (exps.isEmpty()) return this
+    for ((n, item) in exps.withIndex()) {
+        if (n != 0) this..joinString
+        this..item
     }
     return this
 }
@@ -130,16 +135,18 @@ fun <T : SQLExpress> T.addList(exps: Collection<Any>, joinString: String = ","):
 fun <T : SQLExpress, V> T.addList(ls: Collection<V>, joinString: String = ",", block: (T, V) -> Unit): T {
     if (ls.isEmpty()) return this
     for ((n, item) in ls.withIndex()) {
-        if (n != 0) this add joinString
+        if (n != 0) this..joinString
         block(this, item)
     }
     return this
 }
 
 infix operator fun <T : SQLExpress> T.rangeTo(express: Any): T {
-    return this add express
+    this.append(express)
+    return this
 }
 
+@Deprecated("use rangeTo instead.  a..b ")
 infix fun <T : SQLExpress> T.add(express: Any): T {
     this.append(express)
     return this
@@ -150,7 +157,7 @@ class DistinctOnExp(columns: List<Any>) : SQLExpress() {
     init {
         this.."DISTINCT ON("
         this.addList(columns) { e, item ->
-            e..item.asKey
+            e..item.asExpress
         }
         this..")"
     }
@@ -177,11 +184,11 @@ infix fun SQLNode.INTERSECT(right: SQLExpress): SQLNode {
 val String.ASC: String get() = "${this.escapeSQL} ASC"
 val String.DESC: String get() = "${this.escapeSQL} DESC"
 
-val PropSQL.ASC: String get() = "${this.modelFieldSQL} ASC"
-val PropSQL.DESC: String get() = "${this.modelFieldSQL} DESC"
+val PropSQL.ASC: String get() = "${this.fullNmeSQL} ASC"
+val PropSQL.DESC: String get() = "${this.fullNmeSQL} DESC"
 
 fun CASE_COLUMN(column: Any, valueResults: List<Pair<Any, Any>>, elseValue: Any? = null): SQLExpress {
-    val exp = newSQLExp
+    val exp = newExp
     exp.."CASE"..column
     for (p in valueResults) {
         exp.."WHEN"..p.first.."THEN"
@@ -198,7 +205,7 @@ fun CASE_COLUMN(column: Any, valueResults: List<Pair<Any, Any>>, elseValue: Any?
 }
 
 fun CASE_CONDITION(conditionResults: List<Pair<Where, Any>>, elseValue: Any? = null): SQLExpress {
-    val exp = newSQLExp
+    val exp = newExp
     exp.."CASE"
     for (p in conditionResults) {
         exp.."WHEN"..p.first.."THEN"
@@ -222,15 +229,15 @@ fun CASE_CONDITION(conditionResults: List<Pair<Where, Any>>, elseValue: Any? = n
 }
 
 fun COALESCE(exp: Any, defaultValue: Any): SQLExpress {
-    return newSQLExp add "COALESCE(" add exp add "," add defaultValue add ")"
+    return newExp.."COALESCE("..exp..","..defaultValue..")"
 }
 
 fun LEAST(vararg exps: Any): SQLExpress {
-    return newSQLExp add "LEAST(" add exps add ")"
+    return newExp.."LEAST("..exps..")"
 }
 
 fun GREATEST(vararg exps: Any): SQLExpress {
-    return newSQLExp add "GREATEST(" add exps add ")"
+    return newExp.."GREATEST("..exps..")"
 }
 
 

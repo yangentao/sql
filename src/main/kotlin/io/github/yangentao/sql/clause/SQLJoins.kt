@@ -6,118 +6,109 @@ import io.github.yangentao.sql.BaseModelClass
 import kotlin.reflect.KClass
 
 class JoinNode(clause: String? = null) : SQLExpress(clause)
-class OnCondition(clause: String? = null) : SQLExpress(clause)
 
 private val newJoin: JoinNode get() = JoinNode()
 
 //==
 infix fun KClass<*>.JOIN(exp: Any): JoinNode {
-    return newJoin..this.."JOIN"..exp.asKey
+    return newJoin..this.."JOIN"..exp.asExpress
 }
 
 infix fun BaseModelClass<*>.JOIN(exp: Any): JoinNode {
-    return newJoin..this.."JOIN"..exp.asKey
+    return newJoin..this.."JOIN"..exp.asExpress
 }
 
 infix fun String.JOIN(exp: Any): JoinNode {
-    return newJoin..this.asKey.."JOIN"..exp.asKey
+    return newJoin..this.asExpress.."JOIN"..exp.asExpress
 }
 
 infix fun SQLExpress.JOIN(exp: Any): JoinNode {
-    return newJoin..this.."JOIN"..exp.asKey
+    return newJoin..this.."JOIN"..exp.asExpress
 }
 
 //==
 infix fun KClass<*>.INNER_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."INNER JOIN"..exp.asKey
+    return newJoin..this.."INNER JOIN"..exp.asExpress
 }
 
 infix fun BaseModelClass<*>.INNER_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."INNER JOIN"..exp.asKey
+    return newJoin..this.."INNER JOIN"..exp.asExpress
 }
 
 infix fun String.INNER_JOIN(exp: Any): JoinNode {
-    return newJoin..this.asKey.."INNER JOIN"..exp.asKey
+    return newJoin..this.asExpress.."INNER JOIN"..exp.asExpress
 }
 
 infix fun SQLExpress.INNER_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."INNER JOIN"..exp.asKey
+    return newJoin..this.."INNER JOIN"..exp.asExpress
 }
 
 //==
 infix fun KClass<*>.LEFT_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."LEFT JOIN"..exp.asKey
+    return newJoin..this.."LEFT JOIN"..exp.asExpress
 }
 
 infix fun BaseModelClass<*>.LEFT_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."LEFT JOIN"..exp.asKey
+    return newJoin..this.."LEFT JOIN"..exp.asExpress
 }
 
 infix fun String.LEFT_JOIN(exp: Any): JoinNode {
-    return newJoin..this.asKey.."LEFT JOIN"..exp.asKey
+    return newJoin..this.asExpress.."LEFT JOIN"..exp.asExpress
 }
 
 infix fun SQLExpress.LEFT_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."LEFT JOIN"..exp.asKey
+    return newJoin..this.."LEFT JOIN"..exp.asExpress
 }
 
 //==
 infix fun KClass<*>.RIGHT_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."RIGHT JOIN"..exp.asKey
+    return newJoin..this.."RIGHT JOIN"..exp.asExpress
 }
 
 infix fun BaseModelClass<*>.RIGHT_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."RIGHT JOIN"..exp.asKey
+    return newJoin..this.."RIGHT JOIN"..exp.asExpress
 }
 
 infix fun String.RIGHT_JOIN(exp: Any): JoinNode {
-    return newJoin..this.asKey.."RIGHT JOIN"..exp.asKey
+    return newJoin..this.asExpress.."RIGHT JOIN"..exp.asExpress
 }
 
 infix fun SQLExpress.RIGHT_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."RIGHT JOIN"..exp.asKey
+    return newJoin..this.."RIGHT JOIN"..exp.asExpress
 }
 
 //==
 infix fun KClass<*>.FULL_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."FULL OUTER JOIN"..exp.asKey
+    return newJoin..this.."FULL OUTER JOIN"..exp.asExpress
 }
 
 infix fun BaseModelClass<*>.FULL_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."FULL OUTER JOIN"..exp.asKey
+    return newJoin..this.."FULL OUTER JOIN"..exp.asExpress
 }
 
 infix fun String.FULL_JOIN(exp: Any): JoinNode {
-    return newJoin..this.asKey.."FULL OUTER JOIN"..exp.asKey
+    return newJoin..this.asExpress.."FULL OUTER JOIN"..exp.asExpress
 }
 
 infix fun SQLExpress.FULL_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."FULL OUTER JOIN"..exp.asKey
+    return newJoin..this.."FULL OUTER JOIN"..exp.asExpress
 }
 
 //==
 infix fun KClass<*>.CROSS_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."CROSS JOIN"..exp.asKey
+    return newJoin..this.."CROSS JOIN"..exp.asExpress
 }
 
 infix fun BaseModelClass<*>.CROSS_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."CROSS JOIN"..exp.asKey
+    return newJoin..this.."CROSS JOIN"..exp.asExpress
 }
 
 infix fun String.CROSS_JOIN(exp: Any): JoinNode {
-    return newJoin..this.asKey.."CROSS JOIN"..exp.asKey
+    return newJoin..this.asExpress.."CROSS JOIN"..exp.asExpress
 }
 
 infix fun SQLExpress.CROSS_JOIN(exp: Any): JoinNode {
-    return newJoin..this.."CROSS JOIN"..exp.asKey
-}
-
-infix fun JoinNode.ON(clause: OnCondition): JoinNode {
-    return this.."ON"..clause.braced
-}
-
-infix fun JoinNode.ON(clause: String): JoinNode {
-    return this.."ON("..clause..")"
+    return newJoin..this.."CROSS JOIN"..exp.asExpress
 }
 
 infix fun JoinNode.USING(clause: PropSQL): JoinNode {
@@ -135,18 +126,18 @@ infix fun JoinNode.USING(clauses: List<Any>): JoinNode {
     return this
 }
 
-infix fun PropSQL.EQUAL(exp: Any): OnCondition {
-    return OnCondition()..this.."="..exp
+infix fun JoinNode.ON(condition: Where): JoinNode {
+    return this.."ON"..condition.braced
 }
 
-infix fun String.EQUAL(exp: Any): OnCondition {
-    return OnCondition()..this.."="..exp
+infix fun JoinNode.ON(clause: String): JoinNode {
+    return this.."ON("..clause..")"
 }
 
-infix fun OnCondition.AND(other: OnCondition): OnCondition {
-    return this.."AND"..other
+infix fun PropSQL.EQUAL(exp: Any): Where {
+    return this.EQ(exp)
 }
 
-infix fun OnCondition.OR(other: OnCondition): OnCondition {
-    return this.."OR"..other
+infix fun String.EQUAL(exp: Any): Where {
+    return this.EQ(exp)
 }

@@ -28,7 +28,7 @@ fun INSERT_INTO_VALUES(table: Any, cols: List<Any>, values: List<List<Any?>>): S
             when (p) {
                 null -> ex.."NULL"
                 is Number -> ex..p.toString()
-                else -> ex.."?" addArg p
+                else -> ex.."?" withArg p
             }
         }
         if (idx == values.lastIndex) {
@@ -79,7 +79,7 @@ fun SQLNode.SET(keyValues: List<Pair<Any, Any?>>): SQLNode {
                 e..col.."="..value
             }
 
-            else -> e..col.."= ?" addArg value
+            else -> e..col.."= ?" withArg value
         }
     }
     return this

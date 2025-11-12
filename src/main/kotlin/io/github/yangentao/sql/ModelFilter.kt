@@ -2,20 +2,7 @@
 
 package io.github.yangentao.sql
 
-import io.github.yangentao.sql.clause.AND_ALL
-import io.github.yangentao.sql.clause.DELETE_FROM
-import io.github.yangentao.sql.clause.FROM
-import io.github.yangentao.sql.clause.LIMIT
-import io.github.yangentao.sql.clause.LIMIT_OFFSET
-import io.github.yangentao.sql.clause.ORDER_BY_LIST
-import io.github.yangentao.sql.clause.SELECT
-import io.github.yangentao.sql.clause.SELECT_LIST
-import io.github.yangentao.sql.clause.SET
-import io.github.yangentao.sql.clause.UPDATE
-import io.github.yangentao.sql.clause.WHERE
-import io.github.yangentao.sql.clause.Where
-import io.github.yangentao.sql.clause.query
-import io.github.yangentao.sql.clause.update
+import io.github.yangentao.sql.clause.*
 import io.github.yangentao.sql.pool.namedConnection
 import kotlin.reflect.KClass
 

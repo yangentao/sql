@@ -2,7 +2,6 @@
 
 package io.github.yangentao.sql.pool
 
-import io.github.yangentao.sql.SQLog
 import io.github.yangentao.sql.sqlLog
 import java.sql.Connection
 import java.util.concurrent.ConcurrentHashMap

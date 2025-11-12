@@ -36,23 +36,23 @@ fun WITH_RECURSIVE_SELECT(name: String, vararg cols: Any, block: () -> SQLNode):
 }
 
 infix fun String.AS(right: Any): SQLNode {
-    return newNode..this.asKey.."AS"..right.asKey
+    return newNode..this.asExpress.."AS"..right.asExpress
 }
 
 infix fun PropSQL.AS(right: Any): SQLNode {
-    return newNode..this.."AS"..right.asKey
+    return newNode..this.."AS"..right.asExpress
 }
 
 infix fun BaseModelClass<*>.AS(right: Any): SQLNode {
-    return this.tableClass.AS(right.asKey)
+    return this.tableClass.AS(right.asExpress)
 }
 
 infix fun KClass<*>.AS(right: Any): SQLNode {
-    return newNode..this.."AS"..right.asKey
+    return newNode..this.."AS"..right.asExpress
 }
 
 infix fun SQLNode.AS(right: Any): SQLNode {
-    return this.."AS"..right.asKey
+    return this.."AS"..right.asExpress
 }
 
 val RECURSIVE: String get() = "RECURSIVE "
@@ -152,7 +152,7 @@ fun SQLNode.GROUPING_SETS(vararg exps: List<Any>): SQLNode {
     this.addList(exps.toList()) { e, ls ->
         e.."("
         e.addList(ls) { e2, item ->
-            e2..item.asKey
+            e2..item.asExpress
         }
         e..")"
     }
