@@ -128,6 +128,14 @@ infix fun PropSQL.GT(value: Any): Where {
     return newWhere..this.asExpress..">"..value.asValue
 }
 
+infix fun String.IN(exp: SQLExpress): Where {
+    return newWhere..this.."IN"..exp
+}
+
+infix fun PropSQL.IN(exp: SQLExpress): Where {
+    return newWhere..this.asExpress.."IN"..exp
+}
+
 infix fun String.IN(values: Collection<Any>): Where {
     if (values.isEmpty()) return IS_NULL(this.asExpress)
     if (values.size == 1) return this.EQ(values.first())
