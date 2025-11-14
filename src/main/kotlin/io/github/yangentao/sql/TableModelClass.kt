@@ -2,10 +2,8 @@
 
 package io.github.yangentao.sql
 
-import io.github.yangentao.kson.JsonResult
 import io.github.yangentao.sql.clause.*
 import io.github.yangentao.sql.pool.namedConnection
-import io.github.yangentao.sql.utils.BadValue
 import io.github.yangentao.types.*
 import java.sql.Connection
 import java.sql.ResultSet
@@ -54,7 +52,7 @@ abstract class BaseModelClass<T : BaseModel> : WithConnection {
         return pks.first() EQ value
     }
 
-    fun keysEQ(vararg values: Any): Where? {
+    fun keysEQ(vararg values: Any): Where {
         val pks = tableClass.primaryKeysHare
         assert(pks.isNotEmpty() && pks.size == values.size)
         val list: ArrayList<Where> = ArrayList()
@@ -162,8 +160,7 @@ abstract class ViewModelClass<T : ViewModel> : BaseModelClass<T>() {
 
     fun createView(query: SQLNode) {
         val viewName = tableClass.nameSQL
-        val a = query
-        connection.exec("CREATE VIEW $viewName AS ${a.sql}", a.arguments)
+        connection.exec("CREATE VIEW $viewName AS ${query.sql}", query.arguments)
     }
 }
 
@@ -250,12 +247,12 @@ open class TableModelClass<T : TableModel> : BaseModelClass<T>() {
         return updateByKey(key, map.entries.map { it.key to it.value })
     }
 
-    fun update(key: Any, column: String, value: String, allowColumns: Set<String>): JsonResult {
-        if (column !in allowColumns) return BadValue
-        val g = oneByKey(key) ?: return BadValue
-        val v = this.decodeValue(column, value) ?: return BadValue
+    fun update(key: Any, column: String, value: String, allowColumns: Set<String>): SingleResult<Int> {
+        if (column !in allowColumns) return SingleResult.failed("无效属性")
+        val g = oneByKey(key) ?: return SingleResult.failed("无效属性")
+        val v = this.decodeValue(column, value) ?: return SingleResult.failed("无效属性")
         val n = g.updateByKey(column to v)
-        return JsonResult(ok = n > 0)
+        return SingleResult.success(n)
     }
 
     //通过关联表, 来查找自己的类型

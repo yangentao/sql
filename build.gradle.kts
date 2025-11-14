@@ -17,7 +17,7 @@ plugins {
 
 group = "io.github.yangentao"
 
-version = "2.0.7"
+version = "2.0.8"
 val artifactName = "sql"
 val githubLib = "sql"
 val descLib = "SQL, ORM, Kotlin."
@@ -39,9 +39,9 @@ dependencies {
 
 
     implementation("io.github.yangentao:anno:[2.0.0,)")
-    implementation("io.github.yangentao:xlog:[2.0.0,)")
-    implementation("io.github.yangentao:kson:[2.0.0,)")
-    implementation("io.github.yangentao:types:[2.0.0,)")
+    implementation("io.github.yangentao:xlog:[2.0.1,)")
+    implementation("io.github.yangentao:kson:[2.0.7,)")
+    implementation("io.github.yangentao:types:[2.0.16,)")
 }
 
 tasks.test {
