@@ -21,7 +21,7 @@ internal val Any.asValue: SQLExpress
             else -> newExp..this
         }
     }
-internal val Any.asExpress: SQLExpress
+val Any.asExpress: SQLExpress
     get() {
         return when (this) {
             is String -> newExp..this.escapeSQL
