@@ -1,13 +1,9 @@
 package entao
 
 import io.github.yangentao.anno.ModelField
-import io.github.yangentao.sql.TableMigrater
-import io.github.yangentao.sql.TableModel
-import io.github.yangentao.sql.TableModelClass
-import io.github.yangentao.sql.nameSQL
+import io.github.yangentao.sql.*
 import io.github.yangentao.sql.pool.HarePool
 import io.github.yangentao.sql.pool.LiteSources
-import io.github.yangentao.sql.tableIndexList
 import io.github.yangentao.xlog.logd
 import kotlin.test.Test
 
@@ -30,20 +26,20 @@ class Person : TableModel() {
 
 class OrmTest {
     @Test
-    fun indexList(){
+    fun indexList() {
         HarePool.pushSource(LiteSources.sqliteMemory())
         val c = HarePool.pick()
-        TableMigrater(c , Person::class)
+        TableMigrater(c, Person::class)
         val ls = c.tableIndexList(Person::class.nameSQL)
-        for(a in ls ){
-            println( a )
+        for (a in ls) {
+            println(a)
         }
 
     }
 
     @Test
     fun orm() {
-        HarePool.pushSource(LiteSources.sqliteMemory())
+        HarePool.pushSqliteMemory()
         val p = Person()
         p.name = "entao"
         p.addr = "Shandong"

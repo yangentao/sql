@@ -2,10 +2,7 @@
 
 package io.github.yangentao.sql
 
-import io.github.yangentao.sql.clause.INSERT_INTO
-import io.github.yangentao.sql.clause.INSERT_INTO_VALUES
-import io.github.yangentao.sql.clause.insert
-import io.github.yangentao.types.plusAssign
+import io.github.yangentao.sql.clause.*
 import java.sql.Connection
 
 enum class Conflicts {
@@ -54,40 +51,52 @@ fun Connection.upsert(table: String, kvs: List<Pair<String, Any?>>, uniqColumns:
 }
 
 private fun Connection.upsertPgSQLite(table: String, kvs: List<Pair<String, Any?>>, uniqColumns: List<String>, conflict: Conflicts = Conflicts.Update): InsertResult {
-    val buf = StringBuilder(512)
-    buf.append("INSERT INTO ${table.escapeSQL} (${kvs.joinToString(", ") { it.first.escapeSQL }} ) VALUES ( ${kvs.joinToString(", ") { "? " }} ) ")
+    val e = SQLNode("INSERT INTO")
+    e..table.escapeSQL
+    e.parenthesed(kvs.map { it.first.escapeSQL })
+    e.."VALUES"
+    e.parenthesedAll(kvs.map { it.second }) { e..<it }
     if (conflict == Conflicts.Throw || uniqColumns.isEmpty()) {
-        return this.insert(buf.toString(), kvs.map { it.second })
+        return this.insert(e.sql, e.arguments)
     }
 
     val updateCols = kvs.filter { it.first !in uniqColumns }
-    buf += " ON CONFLICT(${uniqColumns.joinToString(",") { it.escapeSQL }})"
+    e.."ON CONFLICT"
+    e.parenthesedAll(uniqColumns) { e..(it.escapeSQL) }
     if (conflict == Conflicts.Ignore || updateCols.isEmpty()) {
-        buf += " DO NOTHING "
-        return this.insert(buf.toString(), kvs.map { it.second })
+        e.."DO NOTHING"
+        return this.insert(e.sql, e.arguments)
     }
-
-    buf += " DO UPDATE SET  "
-    buf += updateCols.joinToString(", ") { "${it.first.escapeSQL} = ? " }
-    return this.insert(buf.toString(), kvs.map { it.second } + updateCols.map { it.second })
+    e.."DO UPDATE SET"
+    e.addEach(updateCols) {
+        e..it.first.escapeSQL
+        e.."="
+        e..<it.second
+    }
+    return this.insert(e.sql, e.arguments)
 }
 
 private fun Connection.upsertMySQL(table: String, kvs: List<Pair<String, Any?>>, uniqColumns: List<String>, conflict: Conflicts = Conflicts.Update): InsertResult {
-    val buf = StringBuilder(512)
+    val e = SQLNode("INSERT INTO")
+    e..table.escapeSQL
+    e.parenthesed(kvs.map { it.first.escapeSQL })
+    e.."VALUES"
+    e.parenthesedAll(kvs.map { it.second }) { e..<it }
     if (conflict == Conflicts.Throw || uniqColumns.isEmpty()) {
-        buf.append("INSERT INTO ${table.escapeSQL} (${kvs.joinToString(", ") { it.first.escapeSQL }} ) VALUES ( ${kvs.joinToString(", ") { "? " }} ) ")
-        return this.insert(buf.toString(), kvs.map { it.second })
+        return this.insert(e.sql, e.arguments)
     }
 
     val updateCols = kvs.filter { it.first !in uniqColumns }
     if (conflict == Conflicts.Ignore || updateCols.isEmpty()) {
-        buf.append("INSERT IGNORE INTO ${table.escapeSQL} (${kvs.joinToString(", ") { it.first.escapeSQL }} ) VALUES ( ${kvs.joinToString(", ") { "? " }} ) ")
-        return this.insert(buf.toString(), kvs.map { it.second })
+        e.buffer.buffer.insert("INSERT".length, " IGNORE")
+        return this.insert(e.sql, e.arguments)
     }
-
-    buf.append("INSERT INTO ${table.escapeSQL} (${kvs.joinToString(", ") { it.first.escapeSQL }} ) VALUES ( ${kvs.joinToString(", ") { "? " }} ) ")
-    buf += " ON DUPLICATE KEY UPDATE "
-    buf += updateCols.joinToString(", ") { "${it.first.escapeSQL} = ? " }
-    return this.insert(buf.toString(), kvs.map { it.second } + updateCols.map { it.second })
+    e.."ON DUPLICATE KEY UPDATE"
+    e.addEach(updateCols) {
+        e..it.first.escapeSQL
+        e.."="
+        e..<it.second
+    }
+    return this.insert(e.sql, e.arguments)
 }
 

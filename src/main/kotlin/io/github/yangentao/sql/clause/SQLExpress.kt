@@ -20,8 +20,9 @@ open class SQLExpress(clause: Any? = null, args: ArgList = emptyList()) {
     val isNotEmpty: Boolean get() = buffer.isNotEmpty
     val sql: String get() = buffer.toString().trim()
 
-    open fun append(express: Any): SQLExpress {
+    open fun append(express: Any?): SQLExpress {
         when (express) {
+            null -> buffer.."NULL"
             is String -> buffer..express
             is SQLExpress -> {
                 buffer..express.sql
@@ -40,7 +41,7 @@ open class SQLExpress(clause: Any? = null, args: ArgList = emptyList()) {
         return this
     }
 
-    private fun addList(exps: Collection<Any>, joinString: String = ",") {
+    private fun addList(exps: Collection<Any?>, joinString: String = ",") {
         if (exps.isEmpty()) return
         for ((n, item) in exps.withIndex()) {
             if (n != 0) this..joinString
@@ -53,17 +54,20 @@ open class SQLExpress(clause: Any? = null, args: ArgList = emptyList()) {
     }
 }
 
-infix operator fun <T : SQLExpress> T.rangeTo(express: Any): T {
+infix operator fun <T : SQLExpress> T.rangeTo(express: Any?): T {
     this.append(express)
     return this
 }
 
-infix operator fun <T : SQLExpress> T.rangeUntil(express: Any): T {
-    if (express is String || express is Date || express is Temporal) {
-        this.append("?")
-        this.arguments.add(express)
-    } else {
-        this.append(express)
+infix operator fun <T : SQLExpress> T.rangeUntil(express: Any?): T {
+    when (express) {
+        is String, is Date, is Temporal -> {
+            this.append("?")
+            this.arguments.add(express)
+        }
+
+        else -> this.append(express)
+
     }
     return this
 }
@@ -75,7 +79,11 @@ fun <T : SQLExpress> T.parenthesed(express: Any): T {
     return this
 }
 
-fun <T : SQLExpress, V : Any> T.addEach(items: Collection<V>, sep: Any = ",", parenthesed: Boolean = false, onItem: ((V) -> Unit)? = null): T {
+fun <T : SQLExpress, V> T.parenthesedAll(items: Collection<V>, sep: Any = ",", onItem: ((V) -> Unit)? = null): T {
+    return addEach(items, sep = sep, parenthesed = true, onItem = onItem)
+}
+
+fun <T : SQLExpress, V> T.addEach(items: Collection<V>, sep: Any = ",", parenthesed: Boolean = false, onItem: ((V) -> Unit)? = null): T {
     if (parenthesed) this.."("
     items.forEachIndexed { n, v ->
         if (n != 0) this..sep
@@ -89,18 +97,10 @@ fun <T : SQLExpress, V : Any> T.addEach(items: Collection<V>, sep: Any = ",", pa
     return this
 }
 
-fun <T : SQLExpress, V : Any> T.addEachX(items: Collection<V?>, sep: Any = ",", onItem: (V?) -> Unit): T {
-    items.forEachIndexed { n, v ->
-        if (n != 0) this..sep
-        onItem(v)
-    }
-    return this
-}
-
 val String.express: SQLExpress get() = SQLExpress(this)
 
 class ShortExpress(express: Any) : SQLExpress(express) {
-    override fun append(express: Any): SQLExpress {
+    override fun append(express: Any?): SQLExpress {
         if (express is PropSQL) {
             buffer..express.userName.escapeSQL
             return this

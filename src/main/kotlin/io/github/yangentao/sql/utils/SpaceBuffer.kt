@@ -40,12 +40,16 @@ class SpaceBuffer(capcity: Int = 128) {
         return this
     }
 
-    fun <V : Any> addEach(items: Collection<V>, sep: String = ",", parenthesed: Boolean = false, onItem: ((V) -> Unit)? = null): SpaceBuffer {
+    fun <V> parenthesedAll(items: Collection<V>, sep: String = ",", onItem: ((V) -> Unit)? = null): SpaceBuffer {
+        return addEach(items, sep, true, onItem)
+    }
+
+    fun <V> addEach(items: Collection<V>, sep: String = ",", parenthesed: Boolean = false, onItem: ((V) -> Unit)? = null): SpaceBuffer {
         if (parenthesed) this.."("
         items.forEachIndexed { n, v ->
             if (n != 0) this..sep
             if (onItem == null) {
-                this..v.toString()
+                if (v == null) this.."NULL" else this..v.toString()
             } else {
                 onItem(v)
             }

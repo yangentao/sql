@@ -22,17 +22,17 @@ value class ResultRow(val resultSet: ResultSet) {
     fun stringValue(index: Int = 1): String? = resultSet.getString(index)
     fun stringValue(label: String): String? = resultSet.getString(label)
 
-    fun intValue(index: Int = 1): Int? = resultSet.getInt(index)
-    fun intValue(label: String): Int? = resultSet.getInt(label)
+    fun intValue(index: Int = 1): Int = resultSet.getInt(index)
+    fun intValue(label: String): Int = resultSet.getInt(label)
 
-    fun longValue(index: Int = 1): Long? = resultSet.getLong(index)
-    fun longValue(label: String): Long? = resultSet.getLong(label)
+    fun longValue(index: Int = 1): Long = resultSet.getLong(index)
+    fun longValue(label: String): Long = resultSet.getLong(label)
 
-    fun doubleValue(index: Int = 1): Double? = resultSet.getDouble(index)
-    fun doubleValue(label: String): Double? = resultSet.getDouble(label)
+    fun doubleValue(index: Int = 1): Double = resultSet.getDouble(index)
+    fun doubleValue(label: String): Double = resultSet.getDouble(label)
 
-    fun boolValue(index: Int = 1): Boolean? = resultSet.getBoolean(index)
-    fun boolValue(label: String): Boolean? = resultSet.getBoolean(label)
+    fun boolValue(index: Int = 1): Boolean = resultSet.getBoolean(index)
+    fun boolValue(label: String): Boolean = resultSet.getBoolean(label)
 
     fun anyValue(index: Int = 1): Any? = resultSet.getObject(index)
     fun anyValue(label: String): Any? = resultSet.getObject(label)

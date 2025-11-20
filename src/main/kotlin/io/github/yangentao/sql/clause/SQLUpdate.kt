@@ -42,8 +42,8 @@ fun INSERT_INTO_VALUES(table: Any, cols: List<Any>, values: List<List<Any?>>): S
     e.."VALUES"
     e.addEach(values, ",") { vs ->
         e.."("
-        e.addEachX(vs) { v ->
-            if (v == null) e.."NULL" else e..<v
+        e.addEach(vs) { v ->
+            e..<v
         }
         e..")"
     }
