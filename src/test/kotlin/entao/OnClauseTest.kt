@@ -13,10 +13,10 @@ class OnClauseTest {
     @Test
     fun f1() {
         HarePool.pushSource(LiteSources.sqliteMemory())
-        val a = Per::id EQ "per.name".asExpress
+        val a = Per::id EQ "per.name"
         println(a)
         println(a.arguments)
-        val node = SELECT(Per.ALL).FROM(Per JOIN Stu ON (Per::id EQ "stu.id".asExpress AND (Stu::id GE 100)))
+        val node = SELECT(Per.ALL).FROM(Per JOIN Stu ON (Per::id EQ "stu.id" AND (Stu::id GE 100)))
         println(node.toString())
         println(node.arguments)
     }

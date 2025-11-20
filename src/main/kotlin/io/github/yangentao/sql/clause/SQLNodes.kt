@@ -5,9 +5,7 @@ package io.github.yangentao.sql.clause
 import io.github.yangentao.sql.BaseModelClass
 import kotlin.reflect.KClass
 
-class SQLNode(clause: String? = null) : SQLExpress(clause)
-
-private val newNode: SQLNode get() = SQLNode()
+class SQLNode(clause: Any? = null) : SQLExpress(clause)
 
 //var sql = """
 //       WITH RECURSIVE cte(id, pid, name) AS (
@@ -22,42 +20,41 @@ private val newNode: SQLNode get() = SQLNode()
 //       SELECT id, pid, name FROM cte ;
 //   """.trimIndent()
 fun WITH_RECURSIVE(name: String, vararg cols: Any, block: () -> SQLNode): SQLNode {
-    if (cols.isEmpty()) {
-        return newNode.."WITH RECURSIVE $name AS ("..block()..")"
+    val node = SQLNode("WITH RECURSIVE")
+    node..name
+    if (cols.isNotEmpty()) {
+        node.parenthesed(cols)
     }
-    return newNode.."WITH RECURSIVE $name("..cols..") AS ("..block()..")"
+    node.."AS"
+    return node.parenthesed(block())
 }
 
 fun WITH_RECURSIVE_SELECT(name: String, vararg cols: Any, block: () -> SQLNode): SQLNode {
-    if (cols.isEmpty()) {
-        return newNode.."WITH RECURSIVE $name AS ("..block()..") SELECT * FROM $name"
-    }
-    return newNode.."WITH RECURSIVE $name("..cols..") AS ("..block()..") SELECT "..cols.."FROM $name"
+    return WITH_RECURSIVE(name, block = block).."SELECT"..cols.ifEmpty { "*" }.."FROM"..name
 }
 
-infix fun String.AS(right: Any): SQLNode {
-    return newNode..this.asExpress.."AS"..right.asExpress
+infix fun String.AS(right: Any): SQLExpress {
+    return SQLExpress(this).."AS"..right
 }
 
-infix fun PropSQL.AS(right: Any): SQLNode {
-    return newNode..this.."AS"..right.asExpress
+infix fun PropSQL.AS(right: Any): SQLExpress {
+    return SQLExpress(this).."AS"..right
 }
 
-infix fun BaseModelClass<*>.AS(right: Any): SQLNode {
-    return this.tableClass.AS(right.asExpress)
+infix fun BaseModelClass<*>.AS(right: Any): SQLExpress {
+    return SQLExpress(this).."AS"..right
 }
 
-infix fun KClass<*>.AS(right: Any): SQLNode {
-    return newNode..this.."AS"..right.asExpress
+infix fun KClass<*>.AS(right: Any): SQLExpress {
+    return SQLExpress(this).."AS"..right
 }
 
-infix fun SQLNode.AS(right: Any): SQLNode {
-    return this.."AS"..right.asExpress
+infix fun SQLNode.AS(right: Any): SQLExpress {
+    return SQLExpress(this).."AS"..right
 }
 
-val RECURSIVE: String get() = "RECURSIVE "
 fun WITH(vararg exps: Any): SQLNode {
-    return newNode.."WITH"..exps
+    return SQLNode("WITH")..exps
 }
 
 fun SQLNode.SELECT(vararg exps: Any): SQLNode {
@@ -81,19 +78,17 @@ private fun _SELECT(vararg exps: Any): SQLNode {
 }
 
 private fun _SELECT_LIST(exps: List<Any>): SQLNode {
-    if (exps.isEmpty()) return newNode.."SELECT *"
+    val node = SQLNode("SELECT")
+    if (exps.isEmpty()) return node.."*"
     val first = exps.first()
-    return when (first) {
-        is DistinctExp -> newNode.."SELECT"..first..exps.slice(1..<exps.size)
-        is DistinctOnExp ->
-            if (exps.size == 1) {
-                newNode.."SELECT"..first.." *"
-            } else {
-                newNode.."SELECT"..first..exps.slice(1..<exps.size)
-            }
 
-        else -> newNode.."SELECT"..exps
+    if (first is DistinctExp || first is DistinctOnExp) {
+        node..first
+        node..exps.slice(1..<exps.size).ifEmpty { "*" }
+    } else {
+        node..exps
     }
+    return node
 }
 
 inline fun <reified T : Any> SQLNode.FROM(): SQLNode {
@@ -108,16 +103,16 @@ fun SQLNode.FROM_LIST(exps: List<Any>): SQLNode {
     return this.."FROM "..exps
 }
 
-private fun SQLNode.WHERE_(condition: Where?): SQLNode {
-    if (condition == null || condition.isEmpty) return this
+private fun SQLNode.WHERE_(condition: Where): SQLNode {
+    if (condition.isEmpty) return this
     return this.."WHERE"..condition
 }
 
-fun SQLNode.WHERE(vararg conditions: Where?): SQLNode {
+fun SQLNode.WHERE(vararg conditions: Where): SQLNode {
     return WHERE(conditions.toList())
 }
 
-fun SQLNode.WHERE(conditions: List<Where?>): SQLNode {
+fun SQLNode.WHERE(conditions: List<Where>): SQLNode {
     return WHERE_(AND_ALL(conditions))
 }
 
@@ -148,15 +143,10 @@ fun SQLNode.ROLLUP(vararg exps: Any): SQLNode {
 }
 
 fun SQLNode.GROUPING_SETS(vararg exps: List<Any>): SQLNode {
-    this.."GROUPING SETS ("
-    this.addList(exps.toList()) { e, ls ->
-        e.."("
-        e.addList(ls) { e2, item ->
-            e2..item.asExpress
-        }
-        e..")"
+    this.."GROUPING SETS"
+    this.addEach(exps.toList(), parenthesed = true) { ls ->
+        this.parenthesed(ls)
     }
-    this..")"
     return this
 }
 
@@ -165,8 +155,9 @@ fun SQLNode.HAVING(condition: Where): SQLNode {
 }
 
 fun SQLNode.LIMIT(size: Number, offset: Number? = null): SQLNode {
-    if (offset == null) return this.."LIMIT"..size
-    return this.."LIMIT"..size.."OFFSET"..offset
+    this.."LIMIT"..size
+    if (offset != null) this.."OFFSET"..offset
+    return this
 }
 
 fun SQLNode.OFFSET(offset: Number): SQLNode {

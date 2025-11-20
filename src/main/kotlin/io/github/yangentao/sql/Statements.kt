@@ -181,6 +181,13 @@ private fun postJsonSQL(sql: String, args: ArgList): String {
 fun Connection.prepare(sql: String, args: ArgList, genKeys: Boolean = false): PreparedStatement {
     val newSQL = if (isPostgres) postJsonSQL(sql, args) else sql
     sqlLog.d("SQL: ", newSQL)
+
+    val ps: PreparedStatement = if (genKeys) {
+        this.prepareStatement(newSQL, Statement.RETURN_GENERATED_KEYS)
+    } else {
+        this.prepareStatement(newSQL)
+    }
+
     if (args.isNotEmpty()) sqlLog.d("     ", args)
     val newArgs: ArgList = if (isSQLite) {
         args.map { v ->
@@ -193,11 +200,8 @@ fun Connection.prepare(sql: String, args: ArgList, genKeys: Boolean = false): Pr
             }
         }
     } else args
-    return if (genKeys) {
-        this.prepareStatement(newSQL, Statement.RETURN_GENERATED_KEYS).setParams(newArgs)
-    } else {
-        this.prepareStatement(newSQL).setParams(newArgs)
-    }
+    ps.setParams(newArgs)
+    return ps
 }
 
 //index from 1

@@ -2,38 +2,72 @@
 
 package io.github.yangentao.sql.clause
 
-open class SQLFunction(sql: String? = null) : SQLExpress(sql)
-
-private val newFunSQL: SQLFunction get() = SQLFunction()
-
-fun COUNT(exp: Any): SQLFunction {
-    return newFunSQL.."COUNT("..exp..")"
+class ExpressFunc(express: Any, args: List<Any> = emptyList()) : SQLExpress(express) {
+    init {
+        this.parenthesed(args)
+    }
 }
 
-infix fun SQLFunction.FILTER(condition: Where): Where {
-    return Where()..this.."FILTER (WHERE"..condition..")"
+fun AVG(exp: Any): ExpressFunc {
+    return ExpressFunc("AVG", listOf(exp))
 }
 
-fun DATE_PART(field: String, source: Any): SQLExpress {
-    return newExp.."DATE_PART("..field..","..source.asExpress..")"
+fun SUM(exp: Any): ExpressFunc {
+    return ExpressFunc("SUM", listOf(exp))
 }
 
-fun SUM(exp: Any): SQLExpress {
-    return newExp.."SUM("..exp.asExpress..")"
+fun COUNT(exp: Any): ExpressFunc {
+    return ExpressFunc("COUNT", listOf(exp))
 }
 
-fun MIN(exp: Any): SQLExpress {
-    return newExp.."MIN("..exp.asExpress..")"
+fun TOTAL(exp: Any): ExpressFunc {
+    return ExpressFunc("TOTAL", listOf(exp))
 }
 
-fun MAX(exp: Any): SQLExpress {
-    return newExp.."MAX("..exp.asExpress..")"
+fun MIN(exp: Any): ExpressFunc {
+    return ExpressFunc("MIN", listOf(exp))
 }
 
-fun AVG(exp: Any): SQLExpress {
-    return newExp.."AVG("..exp.asExpress..")"
+fun MAX(exp: Any): ExpressFunc {
+    return ExpressFunc("MAX", listOf(exp))
 }
 
-fun TO_NUMBER(exp: Any, format: String): SQLExpress {
-    return newExp.."TO_NUMBER("..exp.asExpress..", '"..format.."')"
+fun MEDIAN(express: Any): ExpressFunc {
+    return ExpressFunc("MEDIAN", listOf(express))
+}
+
+fun GROUP_CONCAT(express: Any, sep: String = "','"): ExpressFunc {
+    return ExpressFunc("GROUP_CONCAT", listOf(express, sep))
+}
+
+fun STRING_AGG(express: Any, sep: String = "','"): ExpressFunc {
+    return ExpressFunc("STRING_AGG", listOf(express, sep))
+}
+
+fun PERCENTILE(express: Any, p: Double): ExpressFunc {
+    return ExpressFunc("PERCENTILE", listOf(express, p))
+}
+
+fun PERCENTILE_CONT(express: Any, p: Double): ExpressFunc {
+    return ExpressFunc("PERCENTILE_CONT", listOf(express, p))
+}
+
+fun PERCENTILE_DISC(express: Any, p: Double): ExpressFunc {
+    return ExpressFunc("PERCENTILE_DISC", listOf(express, p))
+}
+
+fun DATE_PART(field: String, source: Any): ExpressFunc {
+    return ExpressFunc("DATE_PART", listOf(field, source))
+}
+
+fun TO_NUMBER(exp: Any, format: String): ExpressFunc {
+    return ExpressFunc("TO_NUMBER", listOf(exp, format))
+}
+
+fun LEAST(vararg exps: Any): SQLExpress {
+    return SQLExpress("LEAST").parenthesed(exps)
+}
+
+fun GREATEST(vararg exps: Any): SQLExpress {
+    return SQLExpress("GREATEST").parenthesed(exps)
 }

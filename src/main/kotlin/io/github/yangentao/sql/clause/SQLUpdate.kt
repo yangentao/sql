@@ -15,52 +15,33 @@ fun INSERT_INTO(table: Any, keyValues: List<Pair<Any, Any?>>): SQLNode {
 }
 
 fun INSERT_INTO_VALUES(table: Any, cols: List<Any>, values: List<List<Any?>>): SQLNode {
-    val e = SQLNode()
-    e.."INSERT INTO"..table.."("
-    e.addList(cols, ",") { ex, p ->
-        ex..p.asColumn
-    }
-    e..") VALUES "
-
-    for ((idx, vs) in values.withIndex()) {
+    val e = SQLNode("INSERT INTO")
+    e..table
+    e.parenthesed(cols.map { ShortExpress(it) })
+    e.."VALUES"
+    e.addEach(values, ",") { vs ->
         e.."("
-        e.addList(vs, ",") { ex, p ->
-            when (p) {
-                null -> ex.."NULL"
-                is Number -> ex..p.toString()
-                else -> ex.."?" withArg p
-            }
+        e.addEachX(vs) { v ->
+            if (v == null) e.."NULL" else e..<v
         }
-        if (idx == values.lastIndex) {
-            e..")"
-        } else {
-            e.."), "
-        }
+        e..")"
     }
     return e
 }
 
 fun SQLNode.DELETE_FROM(table: Any): SQLNode {
-    return this.._DELETE_FROM(table)
+    return this.."DELETE FROM"..table
 }
 
 fun DELETE_FROM(table: Any): SQLNode {
-    return _DELETE_FROM(table)
-}
-
-private fun _DELETE_FROM(table: Any): SQLNode {
     return SQLNode("DELETE FROM")..table
 }
 
 fun SQLNode.UPDATE(table: Any): SQLNode {
-    return this.._UPDATE(table)
+    return this.."UPDATE"..table
 }
 
 fun UPDATE(table: Any): SQLNode {
-    return _UPDATE(table)
-}
-
-private fun _UPDATE(table: Any): SQLNode {
     return SQLNode("UPDATE")..table
 }
 
@@ -70,17 +51,10 @@ fun SQLNode.SET(vararg keyValues: Pair<Any, Any?>): SQLNode {
 
 fun SQLNode.SET(keyValues: List<Pair<Any, Any?>>): SQLNode {
     this.."SET"
-    this.addList(keyValues) { e, p ->
-        val col = p.first.asColumn
-        when (val value = p.second) {
-            null -> e..col.."= NULL"
-            is Number -> e..col.."="..value
-            is SQLExpress -> {
-                e..col.."="..value
-            }
-
-            else -> e..col.."= ?" withArg value
-        }
+    this.addEach(keyValues) { item ->
+        this..(item.first)
+        this.."="
+        if (item.second == null) this.."NULL" else this..<(item.second!!)
     }
     return this
 }
@@ -101,5 +75,6 @@ infix fun PropSQL.INC_REAL(n: Double): Pair<PropSQL, SQLExpress> {
 }
 
 infix fun PropSQL.SELF_OP(s: String): Pair<PropSQL, SQLExpress> {
-    return this to SQLExpress("${this.asColumn} $s")
+    val e = SQLExpress(this)..s
+    return this to e
 }

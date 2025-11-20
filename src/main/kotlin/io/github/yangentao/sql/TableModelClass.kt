@@ -66,33 +66,35 @@ abstract class BaseModelClass<T : BaseModel> : WithConnection {
         SELECT().FROM(tableClass).query().dump()
     }
 
-    fun exists(vararg ws: Where?): Boolean {
+    fun exists(vararg ws: Where): Boolean {
         return SELECT("1").FROM(tableClass).WHERE(*ws).LIMIT(1).query().exists()
     }
 
-    fun countAll(vararg wheres: Where?): Int {
+    fun countAll(vararg wheres: Where): Int {
         return count("*", *wheres)
     }
 
-    fun count(column: Any?, vararg wheres: Where?): Int {
+    fun count(column: Any?, vararg wheres: Where): Int {
         return SELECT(COUNT(column ?: "*")).FROM(tableClass).WHERE(wheres.filterNotNull()).query().one { intValue() } ?: 0
     }
 
-    fun list(vararg wheres: Where?, block: SQLNode.() -> Unit = { }): List<T> {
-        return list(wheres.filterNotNull(), block)
-    }
-
-    fun list(wheres: List<Where?>, block: SQLNode.() -> Unit = { }): List<T> {
-        val exp = SELECT("*").FROM(tableClass).WHERE(wheres.filterNotNull())
+    fun list(vararg wheres: Where, block: SQLNode.() -> Unit = { }): List<T> {
+        val exp = SELECT("*").FROM(tableClass).WHERE(*wheres)
         exp.block()
         return exp.query().list { orm(tableClass) }
     }
 
-    fun listColumn(col: PropSQL, vararg wheres: Where?, block: SQLNode.() -> Unit = { }): ResultSet {
+    fun list(wheres: List<Where>, block: SQLNode.() -> Unit = { }): List<T> {
+        val exp = SELECT("*").FROM(tableClass).WHERE(wheres)
+        exp.block()
+        return exp.query().list { orm(tableClass) }
+    }
+
+    fun listColumn(col: PropSQL, vararg wheres: Where, block: SQLNode.() -> Unit = { }): ResultSet {
         return SELECT(DISTINCT, col).FROM(tableClass).WHERE(wheres.toList()).apply(block).query()
     }
 
-    inline fun <reified R : Any> listColumnValue(col: KProperty<R>, vararg wheres: Where?, noinline block: SQLNode.() -> Unit = { }): List<R> {
+    inline fun <reified R : Any> listColumnValue(col: KProperty<R>, vararg wheres: Where, noinline block: SQLNode.() -> Unit = { }): List<R> {
         return listColumn(col, *wheres, block = block).list { valueAt(col) }
     }
 
@@ -100,7 +102,7 @@ abstract class BaseModelClass<T : BaseModel> : WithConnection {
         return one(wheres.filterNotNull(), orderBy = orderBy, offset = offset)
     }
 
-    fun one(wheres: List<Where?>, orderBy: List<Any> = emptyList(), offset: Int? = null): T? {
+    fun one(wheres: List<Where>, orderBy: List<Any> = emptyList(), offset: Int? = null): T? {
         return SELECT("*").FROM(tableClass).WHERE(wheres.filterNotNull()).ORDER_BY_LIST(orderBy).LIMIT_OFFSET(1, offset).query().one { orm(tableClass) }
     }
 
@@ -112,11 +114,11 @@ abstract class BaseModelClass<T : BaseModel> : WithConnection {
         return this.one(keysEQ(*keys))
     }
 
-    fun oneColumn(col: Prop, vararg wheres: Where?, orderBy: List<Any> = emptyList()): ResultSet {
+    fun oneColumn(col: Prop, vararg wheres: Where, orderBy: List<Any> = emptyList()): ResultSet {
         return SELECT(col).FROM(tableClass).WHERE(wheres.toList()).ORDER_BY_LIST(orderBy).LIMIT(1).query()
     }
 
-    inline fun <reified E : Any> oneColumnValue(col: KProperty<E?>, vararg wheres: Where?, orderBy: List<Any> = emptyList()): E? {
+    inline fun <reified E : Any> oneColumnValue(col: KProperty<E?>, vararg wheres: Where, orderBy: List<Any> = emptyList()): E? {
         return oneColumn(col, *wheres, orderBy = orderBy).one { valueAt(col, 1) }
     }
 
@@ -124,11 +126,11 @@ abstract class BaseModelClass<T : BaseModel> : WithConnection {
         return oneColumnValue(col, keyEQ(key))
     }
 
-    inline fun <reified T> maxColumn(col: KProperty<T>, vararg ws: Where?): T? {
+    inline fun <reified T> maxColumn(col: KProperty<T>, vararg ws: Where): T? {
         return SELECT(MAX(col)).FROM(tableClass).WHERE(*ws).query().one { valueAt() }
     }
 
-    inline fun <reified T> minColumn(col: KProperty<T>, vararg ws: Where?): T? {
+    inline fun <reified T> minColumn(col: KProperty<T>, vararg ws: Where): T? {
         return SELECT(MIN(col)).FROM(tableClass).WHERE(*ws).query().one { valueAt() }
     }
 
@@ -199,11 +201,11 @@ open class TableModelClass<T : TableModel> : BaseModelClass<T>() {
         return INSERT_INTO(tableClass, ps.toList()).insert()
     }
 
-    fun delete(vararg conditions: Where?): Int {
+    fun delete(vararg conditions: Where): Int {
         return delete(conditions.toList())
     }
 
-    fun delete(conditions: List<Where?>): Int {
+    fun delete(conditions: List<Where>): Int {
         return DELETE_FROM(tableClass).WHERE(AND_ALL(conditions)).update()
     }
 
@@ -215,15 +217,15 @@ open class TableModelClass<T : TableModel> : BaseModelClass<T>() {
         return express.update()
     }
 
-    fun update(w: Where?, vararg ps: Pair<Any, Any?>): Int {
+    fun update(w: Where, vararg ps: Pair<Any, Any?>): Int {
         return update(w, ps.toList())
     }
 
-    fun update(w: Where?, ps: List<Pair<Any, Any?>>): Int {
+    fun update(w: Where, ps: List<Pair<Any, Any?>>): Int {
         return UPDATE(tableClass).SET(ps.toList()).WHERE(w).update()
     }
 
-    fun update(w: Where?, map: Map<Any, Any?>): Int {
+    fun update(w: Where, map: Map<Any, Any?>): Int {
         return update(w, map.entries.map { it.key to it.value })
     }
 
@@ -258,7 +260,7 @@ open class TableModelClass<T : TableModel> : BaseModelClass<T>() {
     //通过关联表, 来查找自己的类型
     //table: user, group, member(group.id, user.id)
     //user.relateTo(member::class, member::groupId EQ 100)
-    fun relatedBy(relateTable: KClass<*>, vararg ws: Where?, block: SQLNode.() -> Unit = { }): List<T> {
+    fun relatedBy(relateTable: KClass<*>, vararg ws: Where, block: SQLNode.() -> Unit = { }): List<T> {
         val thisPK = tableClass.primaryKeysHare.first()
         val relatePK = relateTable.primaryKeysHare.first {
             val fk = it.findAnnotation<ForeignKey>()

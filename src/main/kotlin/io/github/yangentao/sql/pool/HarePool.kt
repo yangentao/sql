@@ -3,7 +3,6 @@
 package io.github.yangentao.sql.pool
 
 import java.sql.Connection
-import java.sql.DriverManager
 import java.util.*
 import javax.sql.DataSource
 import kotlin.reflect.KClass
@@ -21,67 +20,12 @@ interface ConnectionBuilder {
     fun destroy() {}
 }
 
-class DataSourceConnectionBuilder(val dataSource: DataSource) : ConnectionBuilder {
+class DataSourceBuilder(val dataSource: DataSource) : ConnectionBuilder {
     override fun create(): Connection {
         return dataSource.connection
     }
 
     override fun destroy() {
-    }
-}
-
-class PostgresConnectionBuilder(val user: String, val password: String, val dbname: String, val host: String, val port: Int = 5432) : ConnectionBuilder {
-    init {
-        Class.forName("org.postgresql.Driver")
-    }
-
-    override fun create(): Connection {
-        val p = Properties()
-        p.putIfAbsent("user", user)
-        p.putIfAbsent("password", password)
-        return DriverManager.getConnection("jdbc:postgresql://${host}:$port/$dbname", p)
-    }
-}
-
-class MysqlConnectionBuilder(val user: String, val password: String, val dbname: String, val host: String, val port: Int = 3306) : ConnectionBuilder {
-    init {
-        Class.forName("com.mysql.cj.jdbc.Driver")
-    }
-
-    override fun create(): Connection {
-        val p = Properties()
-        p.putIfAbsent("user", user)
-        p.putIfAbsent("password", password)
-        p.putIfAbsent("useSSL", "true")
-        p.putIfAbsent("useUnicode", "true")
-        p.putIfAbsent("characterEncoding", "UTF-8")
-        p.putIfAbsent("serverTimezone", "Hongkong")
-        p.putIfAbsent("sessionVariables", "sql_mode=ANSI_QUOTES")
-        return DriverManager.getConnection("jdbc:mysql://$host:$port/$dbname", p)
-    }
-
-}
-
-class SqliteConnectionBuilder(val file: String) : ConnectionBuilder {
-    init {
-        Class.forName("org.sqlite.JDBC")
-    }
-
-    override fun create(): Connection {
-        return DriverManager.getConnection("jdbc:sqlite:$file")
-    }
-
-    companion object {
-        const val TEMP = ""
-        const val MEMORY = ":memory:"
-
-        fun memory(): SqliteConnectionBuilder {
-            return SqliteConnectionBuilder(MEMORY)
-        }
-
-        fun temp(): SqliteConnectionBuilder {
-            return SqliteConnectionBuilder(TEMP)
-        }
     }
 }
 
@@ -107,12 +51,12 @@ interface NamedConnections {
         return pick(NO_NAME_CONNECTION)
     }
 
-    fun pushSource(ds: DataSource) {
-        push(DataSourceConnectionBuilder(ds))
+    fun pushSource(source: DataSource) {
+        push(DataSourceBuilder(source))
     }
 
-    fun pushSource(name: String, ds: DataSource) {
-        push(name, DataSourceConnectionBuilder(ds))
+    fun pushSource(name: String, source: DataSource) {
+        push(name, DataSourceBuilder(source))
     }
 
     fun destroy() {}
@@ -135,6 +79,10 @@ object HarePool : NamedConnections {
 
     override fun destroy() {
         hp.destroy()
+    }
+
+    fun pushSqliteMemory() {
+        pushSource(LiteSources.sqliteMemory())
     }
 }
 

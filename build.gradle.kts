@@ -17,16 +17,16 @@ plugins {
 
 group = "io.github.yangentao"
 
-version = "2.0.9"
+version = "2.1.0"
 val artifactName = "sql"
 val githubLib = "sql"
 val descLib = "SQL, ORM, Kotlin."
 
 
 repositories {
-    mavenLocal()
     mavenCentral()
 //    maven("https://app800.cn/maven/repository/public/")
+    mavenLocal()
 }
 
 dependencies {
@@ -41,7 +41,7 @@ dependencies {
     implementation("io.github.yangentao:anno:[2.0.0,)")
     implementation("io.github.yangentao:xlog:[2.0.1,)")
     implementation("io.github.yangentao:kson:[2.0.7,)")
-    implementation("io.github.yangentao:types:[2.0.16,)")
+    implementation("io.github.yangentao:types:[2.0.21,)")
 }
 
 tasks.test {

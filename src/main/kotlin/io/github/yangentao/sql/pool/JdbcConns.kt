@@ -10,6 +10,14 @@ object LiteSources {
         return sqlite("")
     }
 
+    fun temp(): SQLiteDataSource {
+        return sqlite("")
+    }
+
+    fun memory(): SQLiteDataSource {
+        return sqlite(":memory:")
+    }
+
     fun sqliteMemory(): SQLiteDataSource {
         return sqlite(":memory:")
     }
