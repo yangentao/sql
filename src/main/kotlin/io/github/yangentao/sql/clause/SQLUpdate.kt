@@ -2,6 +2,27 @@
 
 package io.github.yangentao.sql.clause
 
+import io.github.yangentao.sql.escapeSQL
+import io.github.yangentao.sql.unescapeSQL
+
+fun CREATE_INDEX(tableName: String, columnName: String): String {
+    val idxName = "${tableName.unescapeSQL}_${columnName.unescapeSQL}_INDEX"
+    return "CREATE INDEX  $idxName ON ${tableName.escapeSQL}(${columnName.escapeSQL})"
+}
+
+fun CREATE_TABLE(tableName: String, columns: List<String>, options: List<String> = emptyList()): String {
+    return buildString {
+        append("CREATE TABLE IF NOT EXISTS ${tableName.escapeSQL} (")
+        append(columns.joinToString(", "))
+        append(")")
+        append(options.joinToString(", "))
+    }
+}
+
+fun DROP_TABLE(tableName: String): String {
+    return "DROP TABLE IF EXISTS ${tableName.escapeSQL}"
+}
+
 fun SQLNode.INSERT_INTO(table: Any, vararg keyValues: Pair<Any, Any?>): SQLNode {
     return this..INSERT_INTO(table, keyValues.toList())
 }

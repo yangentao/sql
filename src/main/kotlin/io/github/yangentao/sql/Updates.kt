@@ -1,6 +1,8 @@
 package io.github.yangentao.sql
 
-import io.github.yangentao.types.plusAssign
+import io.github.yangentao.sql.clause.CREATE_INDEX
+import io.github.yangentao.sql.clause.CREATE_TABLE
+import io.github.yangentao.sql.clause.DROP_TABLE
 import java.sql.Connection
 
 /**
@@ -8,22 +10,17 @@ import java.sql.Connection
  */
 
 fun Connection.dropTable(tableName: String): Int {
-    return this.update("DROP TABLE IF EXISTS ${tableName.escapeSQL}")
+    return this.update(DROP_TABLE(tableName))
 }
 
 fun Connection.createTable(tableName: String, columns: List<String>, options: List<String> = emptyList()): Int {
-    val sql = buildString {
-        append("CREATE TABLE IF NOT EXISTS ${tableName.escapeSQL} (")
-        append(columns.joinToString(", "))
-        append(")")
-        this += options.joinToString(", ")
-    }
+    val sql = CREATE_TABLE(tableName, columns, options)
     return this.update(sql)
 }
 
 fun Connection.createIndex(tableName: String, columnName: String) {
-    val idxName = "${tableName.unescapeSQL}_${columnName.unescapeSQL}_INDEX"
-    exec("CREATE INDEX  $idxName ON ${tableName.escapeSQL}(${columnName.escapeSQL})")
+    val sql = CREATE_INDEX(tableName, columnName)
+    exec(sql)
 }
 
 

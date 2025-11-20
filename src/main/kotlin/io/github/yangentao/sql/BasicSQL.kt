@@ -51,6 +51,8 @@ val KProperty<*>.fullNmeSQL: String
 
 val String.escapeSQL: String
     get() {
+        if (this.isEmpty()) return this
+        if (this.first() == '"' && this.last() == '"') return this
         if ('.' !in this) {
             if (this in sqlKeywordSet) {
                 return "\"$this\""
@@ -61,14 +63,10 @@ val String.escapeSQL: String
     }
 val String.unescapeSQL: String
     get() {
+        if (this.isEmpty()) return this
+        if (this.first() != '"' || this.last() != '"') return this
         if ('.' !in this) {
             return this.trim('"')
         }
         return this.split('.').joinToString(".") { it.unescapeSQL }
     }
-//fun testMeta() {
-//    val c = ConnPool.pick()
-//    val m = c.metaData
-//    prints("[${m.identifierQuoteString}]")
-//    prints(m.sqlKeywords)
-//}

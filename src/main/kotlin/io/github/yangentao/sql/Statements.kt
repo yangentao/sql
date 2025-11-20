@@ -40,6 +40,7 @@ fun Connection.insert(sql: String, arguments: ArgList): InsertResult {
 
 fun Connection.query(sql: String, arguments: ArgList = emptyList()): ResultSet {
     try {
+
         return this.prepare(sql, arguments).executeQuery()
     } catch (ex: Throwable) {
         sqlLog.e("SQL Error: ", sql)

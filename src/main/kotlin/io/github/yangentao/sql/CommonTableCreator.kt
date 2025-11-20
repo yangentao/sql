@@ -3,6 +3,8 @@ package io.github.yangentao.sql
 import io.github.yangentao.anno.*
 import io.github.yangentao.kson.KsonArray
 import io.github.yangentao.kson.KsonObject
+import io.github.yangentao.sql.clause.CREATE_TABLE
+import io.github.yangentao.sql.utils.SpaceBuffer
 import io.github.yangentao.types.quotedSingle
 import java.sql.Connection
 import java.sql.Date
@@ -34,7 +36,7 @@ class ColumnInfo(val prop: KProperty<*>, val fieldAnno: ModelField) {
     val autoInc: Boolean = fieldAnno.autoInc > 0
     val autoIncBase: Int = fieldAnno.autoInc
     val notNull: Boolean = fieldAnno.notNull || !prop.returnType.isMarkedNullable
-    val defaultValue: String? = if (fieldAnno.defaultValue.trim().isEmpty()) null else fieldAnno.defaultValue.trim()
+    val defaultValue: String? = fieldAnno.defaultValue.trim().ifEmpty { null }
     val commment: String? = prop.findAnnotation<Comment>()?.value ?: prop.findAnnotation<Label>()?.value
 }
 
@@ -68,13 +70,8 @@ open class CommonTableCreator(val connection: Connection, val cls: KClass<*>) {
     }
 
     open fun defineTable(): String {
-        return buildString {
-            val cs = columns.map { defineColumn(it) } + defineExtraColumns()
-            append("CREATE TABLE IF NOT EXISTS ${tableName.escapeSQL} (")
-            append(cs.joinToString(", "))
-            append(")")
-            this.append(defineTableOptions().joinToString(", "))
-        }
+        val cs = columns.map { defineColumn(it) } + defineExtraColumns()
+        return CREATE_TABLE(tableName, cs, defineTableOptions())
     }
 
     //定义class中为体现的, 用逗号区分的, 比如 PRIMARY KEY(id, ver) 或 UNIQUE (firstname,name)

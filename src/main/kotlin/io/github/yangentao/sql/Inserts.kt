@@ -1,5 +1,8 @@
+@file:Suppress("unused")
+
 package io.github.yangentao.sql
 
+import io.github.yangentao.sql.clause.INSERT_INTO
 import io.github.yangentao.sql.clause.INSERT_INTO_VALUES
 import io.github.yangentao.sql.clause.insert
 import io.github.yangentao.types.plusAssign
@@ -27,8 +30,8 @@ fun Connection.insertInto(table: String, vararg kvs: Pair<String, Any?>): Insert
 }
 
 fun Connection.insertInto(table: String, kvs: List<Pair<String, Any?>>): InsertResult {
-    val sql = "INSERT INTO ${table.escapeSQL} (${kvs.joinToString(", ") { it.first.escapeSQL }} ) VALUES ( ${kvs.joinToString(", ") { "? " }} ) "
-    return insert(sql, kvs.map { it.second })
+    val node = INSERT_INTO(table, kvs)
+    return insert(node.sql, node.arguments)
 }
 
 //现有记录和要插入的记录完全一样, 也会返回false, 表示没有更新

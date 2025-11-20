@@ -1,6 +1,8 @@
+@file:Suppress("unused")
+
 package io.github.yangentao.sql.utils
 
-class SpaceBuffer(capcity: Int = 256) {
+class SpaceBuffer(capcity: Int = 128) {
     val buffer: StringBuilder = StringBuilder(capcity)
 
     @Suppress("unused")
@@ -31,29 +33,25 @@ class SpaceBuffer(capcity: Int = 256) {
         this..text
     }
 
-    fun bracketed(force: Boolean = false): SpaceBuffer {
-        return enclosed('[', ']', force)
-    }
-
-    fun braced(force: Boolean = false): SpaceBuffer {
-        return enclosed('{', '}', force)
-    }
-
-    fun parenthesed(force: Boolean = false): SpaceBuffer {
-        return enclosed('(', ')', force)
-    }
-
-    fun enclosed(begin: Char, end: Char, force: Boolean = false): SpaceBuffer {
-        if (!force) {
-            if (this.firstChar == begin && lastChar == end) return this
-        }
-        this.buffer.insert(0, begin)
-        this.buffer.append(end)
+    fun parenthesed(block: () -> Unit): SpaceBuffer {
+        this.."("
+        block()
+        this..")"
         return this
     }
 
-    fun enclosed(chars: EnclosePair, force: Boolean = false): SpaceBuffer {
-        return enclosed(chars.begin, chars.end, force)
+    fun <V : Any> addEach(items: Collection<V>, sep: String = ",", parenthesed: Boolean = false, onItem: ((V) -> Unit)? = null): SpaceBuffer {
+        if (parenthesed) this.."("
+        items.forEachIndexed { n, v ->
+            if (n != 0) this..sep
+            if (onItem == null) {
+                this..v.toString()
+            } else {
+                onItem(v)
+            }
+        }
+        if (parenthesed) this..")"
+        return this
     }
 
     override fun toString(): String {
@@ -65,11 +63,4 @@ class SpaceBuffer(capcity: Int = 256) {
     }
 }
 
-data class EnclosePair(val begin: Char, val end: Char) {
-    companion object {
-        val parentheses = EnclosePair('(', ')')
-        val brackets = EnclosePair('[', ']')
-        val braces = EnclosePair('{', '}')
-    }
-}
 
