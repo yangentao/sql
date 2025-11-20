@@ -97,6 +97,8 @@ fun <T : SQLExpress, V : Any> T.addEachX(items: Collection<V?>, sep: Any = ",", 
     return this
 }
 
+val String.express: SQLExpress get() = SQLExpress(this)
+
 class ShortExpress(express: Any) : SQLExpress(express) {
     override fun append(express: Any): SQLExpress {
         if (express is PropSQL) {

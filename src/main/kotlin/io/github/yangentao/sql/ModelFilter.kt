@@ -6,7 +6,7 @@ import io.github.yangentao.sql.clause.*
 import io.github.yangentao.sql.pool.namedConnection
 import kotlin.reflect.KClass
 
-class ModelFilterSelectOrderByLimit(val table: KClass<*>, val wheres: List<Where>, val selects: List<Any>, val orderBys: List<String>, val limit: Int, val offset: Int) {
+class ModelFilterSelectOrderByLimit(val table: KClass<*>, val wheres: List<Where>, val selects: List<Any>, val orderBys: List<Any>, val limit: Int, val offset: Int) {
     fun <R> list(blockResult: ResultRow.() -> R?): List<R> {
         val node = SELECT_LIST(selects).FROM(table).WHERE(wheres).ORDER_BY_LIST(orderBys).LIMIT_OFFSET(limit, offset)
         return node.query(table.namedConnection).list(blockResult)
@@ -18,7 +18,7 @@ class ModelFilterSelectOrderByLimit(val table: KClass<*>, val wheres: List<Where
     }
 }
 
-class ModelFilterSelectOrderBy(val table: KClass<*>, val wheres: List<Where>, val selects: List<Any>, val orderBys: List<String>) {
+class ModelFilterSelectOrderBy(val table: KClass<*>, val wheres: List<Where>, val selects: List<Any>, val orderBys: List<Any>) {
     fun <R> one(block: ResultRow.() -> R?): R? {
         return SELECT_LIST(selects).FROM(table).WHERE(wheres).ORDER_BY_LIST(orderBys).LIMIT(1).query(table.namedConnection).one(block)
     }
@@ -38,15 +38,15 @@ class ModelFilterSelectOrderBy(val table: KClass<*>, val wheres: List<Where>, va
 
 class ModelFilterSelect(val table: KClass<*>, val wheres: List<Where>, val selects: List<Any>) {
     // first row, first column
-    inline fun <reified R> oneValue(vararg orderBys: String): R? {
+    inline fun <reified R> oneValue(vararg orderBys: Any): R? {
         return SELECT_LIST(selects).FROM(table).WHERE(wheres).ORDER_BY_LIST(orderBys.toList()).LIMIT(1).query(table.namedConnection).one { valueAt(1) }
     }
 
-    fun <R> one(vararg orderBys: String, block: ResultRow.() -> R?): R? {
+    fun <R> one(vararg orderBys: Any, block: ResultRow.() -> R?): R? {
         return SELECT_LIST(selects).FROM(table).WHERE(wheres).ORDER_BY_LIST(orderBys.toList()).LIMIT(1).query(table.namedConnection).one(block)
     }
 
-    fun <R> list(vararg orderBy: String, limit: Int? = null, offset: Int? = null, blockResult: ResultRow.() -> R?): List<R> {
+    fun <R> list(vararg orderBy: Any, limit: Int? = null, offset: Int? = null, blockResult: ResultRow.() -> R?): List<R> {
         val node = SELECT_LIST(selects).FROM(table).WHERE(wheres).ORDER_BY_LIST(orderBy.toList())
         if (limit != null) {
             node.LIMIT_OFFSET(limit, offset ?: 0)
@@ -65,11 +65,11 @@ class ModelFilter<T : BaseModel>(val table: KClass<T>, val wheres: List<Where>) 
         return SELECT("1").FROM(table).WHERE(wheres).LIMIT(1).query(table.namedConnection).exists()
     }
 
-    fun one(vararg orderBy: String): T? {
+    fun one(vararg orderBy: Any): T? {
         return SELECT("*").FROM(table).WHERE(wheres).ORDER_BY_LIST(orderBy.toList()).LIMIT(1).query(table.namedConnection).one { orm(table) }
     }
 
-    fun list(vararg orderBy: String, limit: Int? = null, offset: Int? = null): List<T> {
+    fun list(vararg orderBy: Any, limit: Int? = null, offset: Int? = null): List<T> {
         val exp = SELECT("*").FROM(table).WHERE(wheres).ORDER_BY_LIST(orderBy.toList())
         if (limit != null) {
             exp.LIMIT_OFFSET(limit, offset ?: 0)

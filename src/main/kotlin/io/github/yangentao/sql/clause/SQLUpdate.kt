@@ -52,7 +52,7 @@ fun SQLNode.SET(vararg keyValues: Pair<Any, Any?>): SQLNode {
 fun SQLNode.SET(keyValues: List<Pair<Any, Any?>>): SQLNode {
     this.."SET"
     this.addEach(keyValues) { item ->
-        this..(item.first)
+        this..ShortExpress(item.first)
         this.."="
         if (item.second == null) this.."NULL" else this..<(item.second!!)
     }
