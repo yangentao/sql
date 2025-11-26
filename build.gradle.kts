@@ -17,7 +17,7 @@ plugins {
 
 group = "io.github.yangentao"
 
-version = "2.1.2"
+version = "2.1.3"
 val artifactName = "sql"
 val githubLib = "sql"
 val descLib = "SQL, ORM, Kotlin."
@@ -35,6 +35,7 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     testImplementation("org.xerial:sqlite-jdbc:[3.45.3.0,)")
+    testImplementation("org.postgresql:postgresql:42.7.2")
     compileOnly("org.xerial:sqlite-jdbc:[3.45.3.0,)")
 
 

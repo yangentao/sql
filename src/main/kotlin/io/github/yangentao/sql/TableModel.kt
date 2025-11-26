@@ -10,6 +10,7 @@ import io.github.yangentao.types.Prop
 import io.github.yangentao.types.getPropValue
 import io.github.yangentao.types.setPropValue
 import java.sql.Connection
+import java.sql.ResultSet
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
 
@@ -85,6 +86,17 @@ abstract class TableModel : BaseModel() {
         return DELETE_FROM(this::class).WHERE(w).update() > 0
     }
 
+    fun insertReturning(columns: List<Any> = emptyList()): Boolean {
+        val colList = propertiesExists.map { it to model[it] }
+        val rs = INSERT_INTO(this::class, colList).RETURNING(columns).query()
+        val map: LinkedHashMap<String, Any?>? = rs.oneMap()
+        if (map != null) {
+            this.model.putAll(map)
+            return true
+        }
+        return false
+    }
+
     fun insert(): InsertResult {
         val colList = propertiesExists.map { it to model[it] }
         val aiList = this::class.propertiesModel.filter { it.annotation.autoInc > 0 }
@@ -104,6 +116,16 @@ abstract class TableModel : BaseModel() {
             }
         }
         return ret
+    }
+
+    fun upsertReturning(columns: List<Any> = emptyList(), conflict: Conflicts = Conflicts.Update): Boolean {
+        val rs: ResultSet = connection.upsertModelReturning(this, conflict, columns)
+        val map: LinkedHashMap<String, Any?>? = rs.oneMap()
+        if (map != null) {
+            this.model.putAll(map)
+            return true
+        }
+        return false
     }
 
     fun upsert(conflict: Conflicts = Conflicts.Update): InsertResult {

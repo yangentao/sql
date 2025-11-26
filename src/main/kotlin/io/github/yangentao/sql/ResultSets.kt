@@ -41,6 +41,14 @@ fun <T : BaseModel> ResultSet.oneOrm(cls: KClass<T>): T? {
     return this.one { orm(cls) }
 }
 
+fun ResultSet.oneMap(): LinkedHashMap<String, Any?>? {
+    return this.one { map() }
+}
+
+fun ResultSet.listMap(): List<Map<String, Any?>> {
+    return this.list { map() }
+}
+
 inline fun <reified T : Any> ResultSet.listModel(): List<T> {
     return this.list { model() }
 }

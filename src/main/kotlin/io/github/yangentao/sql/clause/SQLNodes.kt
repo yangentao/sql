@@ -168,3 +168,11 @@ fun SQLNode.LIMIT_OFFSET(size: Number, offset: Number?): SQLNode {
     if (offset == null) return this.."LIMIT"..size
     return this.."LIMIT"..size.."OFFSET"..offset
 }
+
+fun SQLNode.RETURNING(columns: List<Any>): SQLNode {
+    return if (columns.isEmpty())
+        this.."RETURNING *"
+    else {
+        this.."RETURNING"..columns
+    }
+}
