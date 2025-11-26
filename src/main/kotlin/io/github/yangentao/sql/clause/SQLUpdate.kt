@@ -58,6 +58,11 @@ fun DELETE_FROM(table: Any): SQLNode {
     return SQLNode("DELETE FROM")..table
 }
 
+// DELETE FROM t1 USING t2 WHERE t1.id = t2.userId AND ....
+fun SQLNode.USING(express: Any): SQLExpress {
+    return this.."USING"..express
+}
+
 fun SQLNode.UPDATE(table: Any): SQLNode {
     return this.."UPDATE"..table
 }
