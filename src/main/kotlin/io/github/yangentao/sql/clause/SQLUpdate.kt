@@ -59,7 +59,7 @@ fun DELETE_FROM(table: Any): SQLNode {
 }
 
 // DELETE FROM t1 USING t2 WHERE t1.id = t2.userId AND ....
-fun SQLNode.USING(express: Any): SQLExpress {
+fun SQLNode.USING(express: Any): SQLNode {
     return this.."USING"..express
 }
 
