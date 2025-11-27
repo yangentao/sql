@@ -25,12 +25,8 @@ fun ResultSet.oneLong(index: Int = 1): Long? {
     return this.one { longValue(index) }
 }
 
-inline fun <reified T : BaseModel> ResultSet.listOrm(): List<T> {
-    return this.list { orm() }
-}
-
-fun <T : BaseModel> ResultSet.listOrm(cls: KClass<T>): List<T> {
-    return this.list { orm(cls) }
+inline fun <reified T> ResultSet.listValue(): List<T?> {
+    return this.list { valueAt() }
 }
 
 inline fun <reified T : BaseModel> ResultSet.oneOrm(): T? {
@@ -41,6 +37,14 @@ fun <T : BaseModel> ResultSet.oneOrm(cls: KClass<T>): T? {
     return this.one { orm(cls) }
 }
 
+inline fun <reified T : BaseModel> ResultSet.listOrm(): List<T> {
+    return this.list { orm() }
+}
+
+fun <T : BaseModel> ResultSet.listOrm(cls: KClass<T>): List<T> {
+    return this.list { orm(cls) }
+}
+
 fun ResultSet.oneMap(): LinkedHashMap<String, Any?>? {
     return this.one { map() }
 }
@@ -49,20 +53,20 @@ fun ResultSet.listMap(): List<Map<String, Any?>> {
     return this.list { map() }
 }
 
-inline fun <reified T : Any> ResultSet.listModel(): List<T> {
-    return this.list { model() }
-}
-
-fun <T : Any> ResultSet.listModel(cls: KClass<T>): List<T> {
-    return this.list { model(cls) }
-}
-
 inline fun <reified T : Any> ResultSet.oneModel(): T? {
     return this.one { model() }
 }
 
 fun <T : Any> ResultSet.oneModel(cls: KClass<T>): T? {
     return this.one { model(cls) }
+}
+
+inline fun <reified T : Any> ResultSet.listModel(): List<T> {
+    return this.list { model() }
+}
+
+fun <T : Any> ResultSet.listModel(cls: KClass<T>): List<T> {
+    return this.list { model(cls) }
 }
 
 inline fun <reified T : Any> ResultSet.oneDataClass(): T? {
