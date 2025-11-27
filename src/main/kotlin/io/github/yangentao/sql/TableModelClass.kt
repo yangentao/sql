@@ -172,7 +172,9 @@ open class TableModelClass<T : TableModel> : BaseModelClass<T>() {
     init {
         TableMigrater(connection, tableClass)
     }
-
+    fun upsertReturning(vararg ps: Pair<Any, Any?>, conflict: Conflicts = Conflicts.Update): ResultSet {
+        return connection.upsertReturning(tableClass.nameSQL, ps.map { it.first.asColumn to it.second }, tableClass.primaryKeysHare.map { it.fieldSQL }, conflict = conflict)
+    }
     fun upsert(vararg ps: Pair<Any, Any?>, conflict: Conflicts = Conflicts.Update): InsertResult {
         return connection.upsert(tableClass.nameSQL, ps.map { it.first.asColumn to it.second }, tableClass.primaryKeysHare.map { it.fieldSQL }, conflict = conflict)
     }
@@ -199,6 +201,10 @@ open class TableModelClass<T : TableModel> : BaseModelClass<T>() {
 
     fun insert(vararg ps: Pair<Any, Any?>): InsertResult {
         return INSERT_INTO(tableClass, ps.toList()).insert()
+    }
+
+    fun insertReturning(vararg ps: Pair<Any, Any?>): ResultSet {
+        return INSERT_INTO(tableClass, ps.toList()).RETURNING().query()
     }
 
     fun delete(vararg conditions: Where): Int {

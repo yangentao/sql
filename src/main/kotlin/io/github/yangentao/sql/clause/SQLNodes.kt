@@ -104,7 +104,7 @@ fun SQLNode.LIMIT_OFFSET(size: Number, offset: Number?): SQLNode {
     return this.."LIMIT"..size.."OFFSET"..offset
 }
 
-fun SQLNode.RETURNING(columns: List<Any>): SQLNode {
+fun SQLNode.RETURNING(columns: List<Any> = emptyList()): SQLNode {
     return if (columns.isEmpty())
         this.."RETURNING *"
     else {
