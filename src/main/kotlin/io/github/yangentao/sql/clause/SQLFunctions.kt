@@ -4,8 +4,12 @@ package io.github.yangentao.sql.clause
 
 class ExpressFunc(express: Any, args: List<Any> = emptyList()) : SQLExpress(express) {
     init {
-        this.parenthesed(args)
+        this.brace(args)
     }
+}
+
+fun COALESCE(vararg values: Any): SQLExpress {
+    return ExpressFunc("COALESCE", listOf(values))
 }
 
 fun AVG(exp: Any): ExpressFunc {
@@ -65,9 +69,9 @@ fun TO_NUMBER(exp: Any, format: String): ExpressFunc {
 }
 
 fun LEAST(vararg exps: Any): SQLExpress {
-    return SQLExpress("LEAST").parenthesed(exps)
+    return SQLExpress("LEAST").brace(exps)
 }
 
 fun GREATEST(vararg exps: Any): SQLExpress {
-    return SQLExpress("GREATEST").parenthesed(exps)
+    return SQLExpress("GREATEST").brace(exps)
 }

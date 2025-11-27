@@ -12,7 +12,7 @@ open class Where(condition: Any? = null, args: ArgList = emptyList()) : SQLExpre
 class WhereAnd(ws: List<Where>) : Where() {
     init {
         this.addEach(ws.filter { it.isNotEmpty }, "AND") {
-            if (it is WhereOr) this.parenthesed(it) else this..it
+            if (it is WhereOr) this.brace(it) else this..it
         }
     }
 }
@@ -158,14 +158,14 @@ infix fun String.IN(values: Collection<Any>): Where {
     if (values.isEmpty()) return IS_NULL(this)
     if (values.size == 1) return this.EQ(values.first())
     val w = Where(this).."IN"
-    return w.parenthesed(values)
+    return w.brace(values)
 }
 
 infix fun PropSQL.IN(values: Collection<Any>): Where {
     if (values.isEmpty()) return IS_NULL(this)
     if (values.size == 1) return this.EQ(values.first())
     val w = Where(this).."IN"
-    return w.parenthesed(values)
+    return w.brace(values)
 }
 
 fun String.BETWEEN(minValue: Any, maxValue: Any): Where {

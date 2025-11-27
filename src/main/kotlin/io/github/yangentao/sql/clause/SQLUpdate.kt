@@ -23,10 +23,6 @@ fun DROP_TABLE(tableName: String): String {
     return "DROP TABLE IF EXISTS ${tableName.escapeSQL}"
 }
 
-fun SQLNode.INSERT_INTO(table: Any, vararg keyValues: Pair<Any, Any?>): SQLNode {
-    return this..INSERT_INTO(table, keyValues.toList())
-}
-
 fun INSERT_INTO(table: Any, vararg keyValues: Pair<Any, Any?>): SQLNode {
     return INSERT_INTO(table, keyValues.toList())
 }
@@ -38,20 +34,9 @@ fun INSERT_INTO(table: Any, keyValues: List<Pair<Any, Any?>>): SQLNode {
 fun INSERT_INTO_VALUES(table: Any, cols: List<Any>, values: List<List<Any?>>): SQLNode {
     val e = SQLNode("INSERT INTO")
     e..table
-    e.parenthesed(cols.map { ShortExpress(it) })
-    e.."VALUES"
-    e.addEach(values, ",") { vs ->
-        e.."("
-        e.addEach(vs) { v ->
-            e..<v
-        }
-        e..")"
-    }
+    e.brace(cols.map { ShortExpress(it) })
+    e..VALUES_LIST(values)
     return e
-}
-
-fun SQLNode.DELETE_FROM(table: Any): SQLNode {
-    return this.."DELETE FROM"..table
 }
 
 fun DELETE_FROM(table: Any): SQLNode {
@@ -62,11 +47,7 @@ fun DELETE_FROM(table: Any): SQLNode {
 fun SQLNode.USING(express: Any): SQLNode {
     return this.."USING"..express
 }
-
-fun SQLNode.UPDATE(table: Any): SQLNode {
-    return this.."UPDATE"..table
-}
-
+// UPDATE table SET ... FROM table2 WHERE
 fun UPDATE(table: Any): SQLNode {
     return SQLNode("UPDATE")..table
 }
@@ -84,6 +65,8 @@ fun SQLNode.SET(keyValues: List<Pair<Any, Any?>>): SQLNode {
     }
     return this
 }
+
+val SQLNode.FOR_UPDATE: SQLNode get() = this.."FOR UPDATE"
 
 infix fun PropSQL.INC_INT(n: Int): Pair<PropSQL, SQLExpress> {
     val s: String = if (n < 0) n.toString() else "+$n"
@@ -103,4 +86,18 @@ infix fun PropSQL.INC_REAL(n: Double): Pair<PropSQL, SQLExpress> {
 infix fun PropSQL.SELF_OP(s: String): Pair<PropSQL, SQLExpress> {
     val e = SQLExpress(this)..s
     return this to e
+}
+
+fun VALUES(vararg values: List<Any?>): SQLNode {
+    return VALUES_LIST(values.toList())
+}
+
+fun VALUES_LIST(values: List<List<Any?>>): SQLNode {
+    val e = SQLNode("VALUES")
+    e.addEach(values, ",") { vs ->
+        e.addEach(vs, braced = true) { v ->
+            e..<v
+        }
+    }
+    return e
 }

@@ -59,9 +59,9 @@ private fun Connection.upsertPgSQLite(table: String, kvs: List<Pair<String, Any?
 private fun Connection.upsertMySQL(table: String, kvs: List<Pair<String, Any?>>, uniqColumns: List<String>, conflict: Conflicts = Conflicts.Update): InsertResult {
     val e = SQLNode("INSERT INTO")
     e..table.escapeSQL
-    e.parenthesed(kvs.map { it.first.escapeSQL })
+    e.brace(kvs.map { it.first.escapeSQL })
     e.."VALUES"
-    e.parenthesedAll(kvs.map { it.second }) { e..<it }
+    e.addEach(kvs.map { it.second }, braced = true) { e..<it }
     if (conflict == Conflicts.Throw || uniqColumns.isEmpty()) {
         return this.insert(e.sql, e.arguments)
     }
@@ -83,16 +83,16 @@ private fun Connection.upsertMySQL(table: String, kvs: List<Pair<String, Any?>>,
 private fun buildUpsertPgSQLite(table: String, kvs: List<Pair<String, Any?>>, uniqColumns: List<String>, conflict: Conflicts = Conflicts.Update): SQLNode {
     val e = SQLNode("INSERT INTO")
     e..table.escapeSQL
-    e.parenthesed(kvs.map { it.first.escapeSQL })
+    e.brace(kvs.map { it.first.escapeSQL })
     e.."VALUES"
-    e.parenthesedAll(kvs.map { it.second }) { e..<it }
+    e.addEach(kvs.map { it.second }, braced = true) { e..<it }
     if (conflict == Conflicts.Throw || uniqColumns.isEmpty()) {
         return e
     }
 
     val updateCols = kvs.filter { it.first !in uniqColumns }
     e.."ON CONFLICT"
-    e.parenthesedAll(uniqColumns) { e..(it.escapeSQL) }
+    e.addEach(uniqColumns, braced = true) { e..(it.escapeSQL) }
     if (conflict == Conflicts.Ignore || updateCols.isEmpty()) {
         e.."DO NOTHING"
         return e

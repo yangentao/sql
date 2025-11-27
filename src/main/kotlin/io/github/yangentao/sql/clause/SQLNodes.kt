@@ -2,68 +2,7 @@
 
 package io.github.yangentao.sql.clause
 
-import io.github.yangentao.sql.BaseModelClass
-import kotlin.reflect.KClass
-
-class SQLNode(clause: Any? = null) : SQLExpress(clause)
-
-//var sql = """
-//       WITH RECURSIVE cte(id, pid, name) AS (
-//           SELECT id, pid ,name
-//           FROM dept
-//           WHERE  name = 'dev'
-//           UNION
-//           SELECT a.id, a.pid , a.name
-//           FROM dept as a
-//           JOIN cte ON a.id = cte.pid
-//       )
-//       SELECT id, pid, name FROM cte ;
-//   """.trimIndent()
-fun WITH_RECURSIVE(name: String, vararg cols: Any, block: () -> SQLNode): SQLNode {
-    val node = SQLNode("WITH RECURSIVE")
-    node..name
-    if (cols.isNotEmpty()) {
-        node.parenthesed(cols)
-    }
-    node.."AS"
-    return node.parenthesed(block())
-}
-
-fun WITH_RECURSIVE_SELECT(name: String, vararg cols: Any, block: () -> SQLNode): SQLNode {
-    return WITH_RECURSIVE(name, block = block).."SELECT"..cols.ifEmpty { "*" }.."FROM"..name
-}
-
-infix fun String.AS(right: Any): SQLExpress {
-    return SQLExpress(this).."AS"..right
-}
-
-infix fun PropSQL.AS(right: Any): SQLExpress {
-    return SQLExpress(this).."AS"..right
-}
-
-infix fun BaseModelClass<*>.AS(right: Any): SQLExpress {
-    return SQLExpress(this).."AS"..right
-}
-
-infix fun KClass<*>.AS(right: Any): SQLExpress {
-    return SQLExpress(this).."AS"..right
-}
-
-infix fun SQLNode.AS(right: Any): SQLExpress {
-    return SQLExpress(this).."AS"..right
-}
-
-fun WITH(vararg exps: Any): SQLNode {
-    return SQLNode("WITH")..exps
-}
-
-fun SQLNode.SELECT(vararg exps: Any): SQLNode {
-    return this.._SELECT_LIST(exps.toList())
-}
-
-fun SQLNode.SELECT_LIST(exps: List<Any>): SQLNode {
-    return this.._SELECT_LIST(exps)
-}
+open class SQLNode(clause: Any? = null) : SQLExpress(clause)
 
 fun SELECT(vararg exps: Any): SQLNode {
     return _SELECT_LIST(exps.toList())
@@ -73,16 +12,12 @@ fun SELECT_LIST(exps: List<Any>): SQLNode {
     return _SELECT_LIST(exps)
 }
 
-private fun _SELECT(vararg exps: Any): SQLNode {
-    return _SELECT_LIST(exps.toList())
-}
-
-private fun _SELECT_LIST(exps: List<Any>): SQLNode {
+internal fun _SELECT_LIST(exps: List<Any>): SQLNode {
     val node = SQLNode("SELECT")
     if (exps.isEmpty()) return node.."*"
     val first = exps.first()
 
-    if (first is DistinctExp || first is DistinctOnExp) {
+    if (first is DistinctExp) {
         node..first
         node..exps.slice(1..<exps.size).ifEmpty { "*" }
     } else {
@@ -91,9 +26,9 @@ private fun _SELECT_LIST(exps: List<Any>): SQLNode {
     return node
 }
 
-inline fun <reified T : Any> SQLNode.FROM(): SQLNode {
-    return FROM(T::class)
-}
+//inline fun <reified T : Any> SQLNode.FROM(): SQLNode {
+//    return FROM(T::class)
+//}
 
 fun SQLNode.FROM(vararg exps: Any): SQLNode {
     return FROM_LIST(exps.toList())
@@ -144,8 +79,8 @@ fun SQLNode.ROLLUP(vararg exps: Any): SQLNode {
 
 fun SQLNode.GROUPING_SETS(vararg exps: List<Any>): SQLNode {
     this.."GROUPING SETS"
-    this.addEach(exps.toList(), parenthesed = true) { ls ->
-        this.parenthesed(ls)
+    this.addEach(exps.toList(), braced = true) { ls ->
+        this.brace(ls)
     }
     return this
 }

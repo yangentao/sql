@@ -15,7 +15,7 @@ fun SQLNode.WINDOW(name: String, partionBy: Any?, vararg orderBy: Any): SQLNode 
 
 infix fun ExpressFunc.FILTER(condition: Where): ExpressFunc {
     this.."FILTER"
-    this.parenthesed(listOf(condition))
+    this.brace(listOf(condition))
     return this.."FILTER (WHERE"..condition..")"
 }
 

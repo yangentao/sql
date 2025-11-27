@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package io.github.yangentao.sql.clause
 
 import io.github.yangentao.anno.userName
@@ -72,19 +74,28 @@ infix operator fun <T : SQLExpress> T.rangeUntil(express: Any?): T {
     return this
 }
 
-fun <T : SQLExpress> T.parenthesed(express: Any): T {
+@Suppress("FunctionName")
+fun <T : SQLExpress> BRACED(block: () -> T): T {
+    val e = block()
+    e.braced()
+    return e
+}
+
+fun <T : SQLExpress> T.braced(): T {
+    this.buffer.buffer.insert(0, '(')
+    this.buffer.buffer.append(')')
+    return this
+}
+
+fun <T : SQLExpress> T.brace(express: Any): T {
     this.."("
     this..express
     this..")"
     return this
 }
 
-fun <T : SQLExpress, V> T.parenthesedAll(items: Collection<V>, sep: Any = ",", onItem: ((V) -> Unit)? = null): T {
-    return addEach(items, sep = sep, parenthesed = true, onItem = onItem)
-}
-
-fun <T : SQLExpress, V> T.addEach(items: Collection<V>, sep: Any = ",", parenthesed: Boolean = false, onItem: ((V) -> Unit)? = null): T {
-    if (parenthesed) this.."("
+fun <T : SQLExpress, V> T.addEach(items: Collection<V>, sep: Any = ",", braced: Boolean = false, onItem: ((V) -> Unit)? = null): T {
+    if (braced) this.."("
     items.forEachIndexed { n, v ->
         if (n != 0) this..sep
         if (onItem == null) {
@@ -93,7 +104,7 @@ fun <T : SQLExpress, V> T.addEach(items: Collection<V>, sep: Any = ",", parenthe
             onItem(v)
         }
     }
-    if (parenthesed) this..")"
+    if (braced) this..")"
     return this
 }
 

@@ -3,6 +3,7 @@
 package io.github.yangentao.sql.clause
 
 import io.github.yangentao.sql.*
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 typealias PropSQL = KProperty<*>
@@ -18,18 +19,22 @@ internal val Any.asColumn: String
 
 val <T : BaseModel> BaseModelClass<T>.ALL get() = this.tableClass.nameSQL.escapeSQL + ".*"
 
-class DistinctExp : SQLExpress("DISTINCT")
-class DistinctOnExp(columns: List<Any>) : SQLExpress() {
-    init {
-        this.."DISTINCT ON"
-        this.parenthesed(columns)
+class DistinctExp : SQLExpress("DISTINCT") {
+    fun ON(vararg columns: Any): DistinctExp {
+        return ON_LIST(columns.toList())
+    }
+
+    fun ON_LIST(columns: List<Any>): DistinctExp {
+        this.."ON"
+        this.brace(columns)
+        return this
     }
 }
 
-val DISTINCT: DistinctExp = DistinctExp()
+val DISTINCT: DistinctExp get() = DistinctExp()
 
-fun DISTINCT_ON(vararg columns: Any): DistinctOnExp {
-    return DistinctOnExp(columns.toList())
+fun DISTINCT_ON(vararg columns: Any): DistinctExp {
+    return DISTINCT.ON_LIST(columns.toList())
 }
 
 infix fun SQLNode.UNION(right: SQLExpress): SQLNode {
@@ -72,12 +77,35 @@ fun CASE_CONDITION(conditionResults: List<Pair<Where, Any>>, elseValue: Any? = n
     return exp
 }
 
-fun COALESCE(exp: Any, defaultValue: Any): SQLExpress {
-    return SQLExpress("COALESCE(")..exp..","..defaultValue..")"
+infix fun String.AS(right: Any): SQLExpress {
+    return SQLExpress(this).."AS"..right
 }
 
+infix fun PropSQL.AS(right: Any): SQLExpress {
+    return SQLExpress(this).."AS"..right
+}
 
+infix fun BaseModelClass<*>.AS(right: Any): SQLExpress {
+    return SQLExpress(this).."AS"..right
+}
 
+infix fun KClass<*>.AS(right: Any): SQLExpress {
+    return SQLExpress(this).."AS"..right
+}
+
+infix fun <T : SQLExpress> T.AS(right: Any): T {
+    return this.."AS"..right
+}
+
+fun <T : SQLExpress> T.AS(right: Any, columns: List<Any>): T {
+    val e = this.."AS"..right
+    if (columns.isNotEmpty()) e.brace(columns)
+    return e
+}
+
+fun <T : SQLExpress> T.AS(block: () -> SQLExpress): T {
+    return this.."AS ("..block()..")"
+}
 
 
 
